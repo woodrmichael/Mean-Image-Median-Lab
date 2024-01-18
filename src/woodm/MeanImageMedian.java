@@ -81,6 +81,7 @@ public class MeanImageMedian {
                     image.getPixelWriter().setArgb(j, i, 0);
                 }
             }
+
             return image;
         }
     }
