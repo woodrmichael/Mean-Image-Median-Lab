@@ -1,6 +1,10 @@
 /*
-TODO
-*/
+ * Course: CSC1120A 121
+ * Spring 2023
+ * Lab 1 - Mean Image Median
+ * Name: Michael Wood
+ * Created: 1/18/2024
+ */
 package woodm;
 
 import mocked.Image;
