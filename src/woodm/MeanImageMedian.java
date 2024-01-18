@@ -1,7 +1,7 @@
 /*
  * Course: CSC1120A 121
  * Spring 2023
- * Lab 1 - Mean Image Median
+ * Lab 1 - Mean Image Median Lab
  * Name: Michael Wood
  * Created: 1/18/2024
  */
