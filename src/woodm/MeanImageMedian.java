@@ -1,12 +1,10 @@
 /*
 TODO
 */
-package username;
+package woodm;
 
 import mocked.Image;
-import mocked.WritableImage;
-import mocked.PixelReader;
-import mocked.PixelWriter;
+
 import java.io.IOException;
 import java.nio.file.Path;
 

@@ -7,7 +7,7 @@ with each commit.
 ## [Link to Lab 1 assignment](https://csse.msoe.us/csc1120/lab1)
 
 * [ ] Commit 1 "Rename package"
-    - Rename the package to your MSOE username
+    - Rename the package to your MSOE woodm
 * [ ] Commit 2 "User input"
   Create a class called `Lab1` with a `main()` method that gathers the
   required user input and displays it to the console. You may either accept the user
