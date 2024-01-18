@@ -5,7 +5,7 @@
  * Name: Dr. Taylor
  * Created: 20230619
  */
- package mocked;
+package mocked;
 
 /**
  * Provides a simple representation of a 2D image.

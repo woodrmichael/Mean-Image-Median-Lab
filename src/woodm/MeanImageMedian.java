@@ -8,9 +8,11 @@
 package woodm;
 
 import mocked.Image;
+import mocked.WritableImage;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Scanner;
 
 
 /**
@@ -63,7 +65,24 @@ public class MeanImageMedian {
      * @throws IOException Thrown if the image format is invalid or there was trouble reading the file.
      */
     public static Image readPPMImage(Path imagePath) throws IOException {
-        return null;
+        if(imagePath == null) {
+            throw new IllegalArgumentException();
+        }
+        try (Scanner reader = new Scanner(imagePath)) {
+            reader.nextLine();
+            String[] dimensions = reader.nextLine().split(" ");
+            int width = Integer.parseInt(dimensions[0]);
+            int height = Integer.parseInt(dimensions[1]);
+            WritableImage image = new WritableImage(width, height);
+            reader.nextLine();
+            for(int i = 0; i < height; i++) {
+                String[] row = reader.nextLine().split(" {3}");
+                for(int j = 0; j < width; j++) {
+                    image.getPixelWriter().setArgb(j, i, 0);
+                }
+            }
+            return image;
+        }
     }
 
     /**
