@@ -68,20 +68,24 @@ public class MeanImageMedian {
         if(imagePath == null) {
             throw new IllegalArgumentException();
         }
+        if(!imagePath.toString().endsWith(".ppm")) {
+            throw new IOException();
+        }
         try (Scanner reader = new Scanner(imagePath)) {
-            reader.nextLine();
-            String[] dimensions = reader.nextLine().split(" ");
-            int width = Integer.parseInt(dimensions[0]);
-            int height = Integer.parseInt(dimensions[1]);
+            reader.next();
+            int width = reader.nextInt();
+            int height = reader.nextInt();
             WritableImage image = new WritableImage(width, height);
-            reader.nextLine();
-            for(int i = 0; i < height; i++) {
-                String[] row = reader.nextLine().split(" {3}");
-                for(int j = 0; j < width; j++) {
-                    image.getPixelWriter().setArgb(j, i, 0);
+            reader.nextInt();
+            for(int j = 0; j < height; j++) {
+                for(int i = 0; i < width; i++) {
+                    int r = reader.nextInt();
+                    int g = reader.nextInt();
+                    int b = reader.nextInt();
+                    int argb = argbToInt(MAX_COLOR, r, g, b);
+                    image.getPixelWriter().setArgb(i, j, argb);
                 }
             }
-
             return image;
         }
     }
