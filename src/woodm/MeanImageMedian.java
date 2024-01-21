@@ -11,6 +11,7 @@ import mocked.Image;
 import mocked.WritableImage;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.Scanner;
 
@@ -100,7 +101,29 @@ public class MeanImageMedian {
      * @throws IOException Thrown if the image format is invalid or there was trouble reading the file.
      */
     public static void writePPMImage(Path imagePath, Image image) throws IOException {
-
+        if(imagePath == null) {
+            throw new IllegalArgumentException();
+        }
+        if(!imagePath.toString().endsWith(".ppm")) {
+            throw new IOException();
+        }
+        try (PrintWriter writer = new PrintWriter(imagePath.toFile())) {
+            int width = (int) image.getWidth();
+            int height = (int) image.getHeight();
+            writer.println("P3");
+            writer.println(width + " " + height);
+            writer.println(MAX_COLOR);
+            for(int j = 0; j < height; j++) {
+                for(int i = 0; i < width; i++) {
+                    int argb = image.getPixelReader().getArgb(i, j);
+                    int r = argbToRed(argb);
+                    int g = argbToGreen(argb);
+                    int b = argbToBlue(argb);
+                    writer.format("%3d %3d %3d  ", r, g, b);
+                }
+                writer.println();
+            }
+        }
     }
 
     /**
