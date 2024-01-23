@@ -24,7 +24,7 @@ with each commit.
 * [ ] Commit 5 "Lab completed"
     - Implement the remaining requirements for the lab assignment.
 
-Remove the dashes on this line when lab 1 is ready to be graded (and commit and push): D-O-N-E-1
+Remove the dashes on this line when lab 1 is ready to be graded (and commit and push): DONE1
 
 ## [Link to Lab 2 assignment](https://csse.msoe.us/csc1120/lab2)
 
