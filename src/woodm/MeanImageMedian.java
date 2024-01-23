@@ -13,11 +13,13 @@ import mocked.WritableImage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Scanner;
 
 
 /**
- * TODO
+ * The MeanImageMedian class offers multiple methods to generate mean and median images
+ * of 2 or more images.
  */
 public class MeanImageMedian {
     
@@ -38,7 +40,33 @@ public class MeanImageMedian {
      * the length of the array is less than two, or  if any of the input images differ in size.
      */
     public static Image calculateMedianImage(Image[] inputImages) {
-        return null;
+        if(checkInputImages(inputImages)) {
+            throw new IllegalArgumentException();
+        }
+        int width = (int) inputImages[0].getWidth();
+        int height = (int) inputImages[0].getHeight();
+        WritableImage image = new WritableImage(width, height);
+        for(int i = 0; i < width; i++) {
+            for(int j = 0; j < height; j++) {
+                int[] alpha = new int[inputImages.length];
+                int[] red = new int[inputImages.length];
+                int[] green = new int[inputImages.length];
+                int[] blue = new int[inputImages.length];
+                for(int x = 0; x < inputImages.length; x++) {
+                    int argb = inputImages[x].getPixelReader().getArgb(i, j);
+                    alpha[x] = argbToAlpha(argb);
+                    red[x] = argbToRed(argb);
+                    green[x] = argbToGreen(argb);
+                    blue[x] = argbToBlue(argb);
+                }
+                int a = calculateMedian(alpha);
+                int r = calculateMedian(red);
+                int g = calculateMedian(green);
+                int b = calculateMedian(blue);
+                image.getPixelWriter().setArgb(i, j, argbToInt(a, r, g, b));
+            }
+        }
+        return image;
     }
 
     /**
@@ -53,17 +81,44 @@ public class MeanImageMedian {
      * the length of the array is less than two, or  if any of the input images differ in size.
      */
     public static Image calculateMeanImage(Image[] inputImages) {
-        return null;
+        if(checkInputImages(inputImages)) {
+            throw new IllegalArgumentException();
+        }
+        int width = (int) inputImages[0].getWidth();
+        int height = (int) inputImages[0].getHeight();
+        WritableImage image = new WritableImage(width, height);
+        for(int i = 0; i < width; i++) {
+            for(int j = 0; j < height; j++) {
+                int a = 0;
+                int r = 0;
+                int g = 0;
+                int b = 0;
+                for(int x = 0; x < inputImages.length; x++) {
+                    int argb = inputImages[x].getPixelReader().getArgb(i, j);
+                    a += argbToAlpha(argb);
+                    r += argbToRed(argb);
+                    g += argbToGreen(argb);
+                    b += argbToBlue(argb);
+                }
+                a = (int) Math.round(((double) a) / inputImages.length);
+                r = (int) Math.round(((double) r) / inputImages.length);
+                g = (int) Math.round(((double) g) / inputImages.length);
+                b = (int) Math.round(((double) b) / inputImages.length);
+                image.getPixelWriter().setArgb(i, j, argbToInt(a, r, g, b));
+            }
+        }
+        return image;
     }
 
     /**
-     * Reads an image in PPM format. The method only supports the plain PPM (P3) format with 24-bit color
-     * and does not support comments in the image file.
+     * Reads an image in PPM format. The method only supports the plain PPM (P3)
+     * format with 24-bit color and does not support comments in the image file.
      * @param imagePath the path to the image to be read
      * @return An image object containing the image read from the file.
      *
      * @throws IllegalArgumentException Thrown if imagePath is null.
-     * @throws IOException Thrown if the image format is invalid or there was trouble reading the file.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
      */
     public static Image readPPMImage(Path imagePath) throws IOException {
         if(imagePath == null) {
@@ -92,13 +147,14 @@ public class MeanImageMedian {
     }
 
     /**
-     * Writes an image in PPM format. The method only supports the plain PPM (P3) format with 24-bit color
-     * and does not support comments in the image file.
+     * Writes an image in PPM format. The method only supports the plain PPM (P3)
+     * format with 24-bit color and does not support comments in the image file.
      * @param imagePath the path to where the file should be written
      * @param image the image containing the pixels to be written to the file
      *
      * @throws IllegalArgumentException Thrown if imagePath is null.
-     * @throws IOException Thrown if the image format is invalid or there was trouble reading the file.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
      */
     public static void writePPMImage(Path imagePath, Image image) throws IOException {
         if(imagePath == null) {
@@ -119,7 +175,7 @@ public class MeanImageMedian {
                     int r = argbToRed(argb);
                     int g = argbToGreen(argb);
                     int b = argbToBlue(argb);
-                    writer.format("%3d %3d %3d  ", r, g, b);
+                    writer.format("%3d %3d %3d   ", r, g, b);
                 }
                 writer.println();
             }
@@ -179,7 +235,8 @@ public class MeanImageMedian {
      * @param r the 8-bit Red channel value of the color
      * @param g the 8-bit Green channel value of the color
      * @param b the 8-bit Blue channel value of the color
-     * @return a 32-bit representation of the color in the format described by the INT_ARGB PixelFormat type.
+     * @return a 32-bit representation of the color in the format
+     * described by the INT_ARGB PixelFormat type.
      */
     private static int argbToInt(int a, int r, int g, int b) {
         final int alphaShift = 24;
@@ -187,5 +244,46 @@ public class MeanImageMedian {
         final int greenShift = 8;
         final int mask = 0xff;
         return a << alphaShift | ((r & mask) << redShift) | (g & mask) << greenShift | b & mask;
+    }
+
+    /**
+     * Determines if the list of inputImages is valid
+     * The list is valid if no elements in the list are null, the size of the list
+     * is greater than 2, and all elements have the same widths and heights as other elements.
+     * @param inputImages the list to validate
+     * @return false if valid, true if invalid
+     */
+    private static boolean checkInputImages(Image[] inputImages) {
+        if(inputImages.length < 2) {
+            return true;
+        }
+        for(int i = 0; i < inputImages.length; i++) {
+            if(inputImages[i] == null) {
+                return true;
+            }
+        }
+        int width = (int) inputImages[0].getWidth();
+        int height = (int) inputImages[0].getHeight();
+        for(int i = 1; i < inputImages.length; i++) {
+            if(width != (int) inputImages[i].getWidth() ||
+                    height != (int) inputImages[i].getHeight()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Sorts the given array and returns the median
+     * @param arr the given array
+     * @return the median value of the array
+     */
+    private static int calculateMedian(int[] arr) {
+        Arrays.sort(arr);
+        int len = arr.length;
+        if(len % 2 == 1) {
+            return arr[len / 2];
+        }
+        return (int) Math.round((arr[len / 2] + arr[len / 2 - 1]) / 2.0);
     }
 }
