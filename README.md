@@ -6,22 +6,22 @@ with each commit.
 
 ## [Link to Lab 1 assignment](https://csse.msoe.us/csc1120/lab1)
 
- [ ] Commit 1 "Rename package"
+* [x] Commit 1 "Rename package"
     - Rename the package to your MSOE woodm
- [ ] Commit 2 "User input"
+* [x] Commit 2 "User input"
   Create a class called `Lab1` with a `main()` method that gathers the
   required user input and displays it to the console. You may either accept the user
   input as command line arguments or prompt the user for the appropriate input via the console.
- [ ] Commit 3 "Read PPM Image"
+* [x] Commit 3 "Read PPM Image"
     - Implement the **`MeanImageMedian.readPPMImage(Path imagePath)`** method
     - Modify `main()` so that it reads all of the input images specified by the user and
       displays the size of each image.
- [ ] Commit 4 "Write PPM Image"
+* [x] Commit 4 "Write PPM Image"
     - Implement the **`MeanImageMedian.writePPMImage(Path imagePath)`** method
     - Modify `main()` so that it writes the first image input image specified by the user to
       the output image specified by the user. The output image should be identical to the input
       image.
- [ ] Commit 5 "Lab completed"
+* [x] Commit 5 "Lab completed"
     - Implement the remaining requirements for the lab assignment.
 
 Remove the dashes on this line when lab 1 is ready to be graded (and commit and push): DONE1
