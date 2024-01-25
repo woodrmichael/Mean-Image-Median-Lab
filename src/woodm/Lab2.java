@@ -46,4 +46,8 @@ public class Lab2 extends Application {
         stage.setTitle(width + " x " + height);
         stage.show();
     }
+
+    public static void main(String[] args) {
+        Application.launch(args);
+    }
 }
