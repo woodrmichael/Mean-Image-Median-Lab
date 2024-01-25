@@ -7,8 +7,9 @@
  */
 package woodm;
 
-import mocked.Image;
-import mocked.WritableImage;
+
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -110,6 +111,19 @@ public class MeanImageMedian {
         return image;
     }
 
+    public static Image readImage(Path imagePath) throws IOException {
+        if(imagePath.toString().endsWith(".ppm")) {
+            return readPPMImage(imagePath);
+        }
+        return new WritableImage(10, 1);
+    }
+
+    public static void writeImage(Path imagePath, Image image) throws IOException {
+        if(imagePath.toString().endsWith(".ppm")) {
+            writePPMImage(imagePath, image);
+        }
+    }
+
     /**
      * Reads an image in PPM format. The method only supports the plain PPM (P3)
      * format with 24-bit color and does not support comments in the image file.
@@ -120,7 +134,7 @@ public class MeanImageMedian {
      * @throws IOException Thrown if the image format is invalid or
      * there was trouble reading the file.
      */
-    public static Image readPPMImage(Path imagePath) throws IOException {
+    private static Image readPPMImage(Path imagePath) throws IOException {
         if(imagePath == null) {
             throw new IllegalArgumentException();
         }
@@ -156,7 +170,7 @@ public class MeanImageMedian {
      * @throws IOException Thrown if the image format is invalid or
      * there was trouble reading the file.
      */
-    public static void writePPMImage(Path imagePath, Image image) throws IOException {
+    private static void writePPMImage(Path imagePath, Image image) throws IOException {
         if(imagePath == null) {
             throw new IllegalArgumentException();
         }
