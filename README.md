@@ -28,7 +28,7 @@ Remove the dashes on this line when lab 1 is ready to be graded (and commit and 
 
 ## [Link to Lab 2 assignment](https://csse.msoe.us/csc1120/lab2)
 
-* [ ] Commit 1 "JavaFX Application"
+* [x] Commit 1 "JavaFX Application"
     - Install JavaFX
     - Create a `Lab2` class that extends `Application`
 * [ ] Commit 2 "JavaFX Window"
