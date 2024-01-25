@@ -31,10 +31,10 @@ Remove the dashes on this line when lab 1 is ready to be graded (and commit and 
 * [x] Commit 1 "JavaFX Application"
     - Install JavaFX
     - Create a `Lab2` class that extends `Application`
-* [ ] Commit 2 "JavaFX Window"
+* [x] Commit 2 "JavaFX Window"
     - Implement the `start(Stage stage)` method so that the dimensions of the first input
       image are displayed in the title of graphical window
-* [ ] Commit 3 "Jar file"
+* [x] Commit 3 "Jar file"
     - Create an executable `.jar` file, place it in the project folder (same folder as this
       file), and rename it `lab2.jar`.
 * [ ] Commit 4 "Command line arguments"
