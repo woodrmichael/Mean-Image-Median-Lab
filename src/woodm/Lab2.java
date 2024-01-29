@@ -22,8 +22,15 @@ import java.util.List;
 public class Lab2 extends Application {
     @Override
     public void start(Stage stage) {
+        boolean flag = false;
         List<String> parameters = getParameters().getRaw();
-        String choice = parameters.get(0);
+        if(parameters.size() < 4) {
+            flag = true;
+        }
+        String choice = parameters.get(0).toLowerCase();
+        if(!choice.equals("mean") && !choice.equals("median")) {
+            flag = true;
+        }
         Path output = Path.of(parameters.get(1));
         ArrayList<Path> inputPaths = new ArrayList<>();
         for(int i = 2; i < parameters.size(); i++) {
