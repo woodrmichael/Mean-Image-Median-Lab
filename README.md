@@ -37,7 +37,7 @@ Remove the dashes on this line when lab 1 is ready to be graded (and commit and 
 * [x] Commit 3 "Jar file"
     - Create an executable `.jar` file, place it in the project folder (same folder as this
       file), and rename it `lab2.jar`.
-* [ ] Commit 4 "Command line arguments"
+* [x] Commit 4 "Command line arguments"
     - If your program already supports command line arguments, skip this commit. Otherwise,
       modify the program to support command line arguments for all user input.
 * [ ] Commit 5 "Lab completed"
