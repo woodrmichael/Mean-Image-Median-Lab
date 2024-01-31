@@ -40,12 +40,12 @@ Remove the dashes on this line when lab 1 is ready to be graded (and commit and 
 * [x] Commit 4 "Command line arguments"
     - If your program already supports command line arguments, skip this commit. Otherwise,
       modify the program to support command line arguments for all user input.
-* [ ] Commit 5 "Lab completed"
+* [x] Commit 5 "Lab completed"
     - Update your code based on feedback from your instructor (if available)
     - Finish all assignment requirements.
     - Update the `.jar` file by rebuilding it and copying it to the project folder.
 
-Remove the dashes on this line when lab 2 is ready to be graded (and commit and push): D-O-N-E-2
+Remove the dashes on this line when lab 2 is ready to be graded (and commit and push): DONE2
 
 ## [Link to Lab 3 assignment](https://csse.msoe.us/csc1120/lab3)
 
