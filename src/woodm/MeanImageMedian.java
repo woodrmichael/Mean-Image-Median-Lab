@@ -133,7 +133,7 @@ public class MeanImageMedian {
         } else if(fileExtension.equals(".png") || fileExtension.equals(".jpg")) {
             image = new Image(new FileInputStream(imagePath.toFile()));
         } else {
-            throw new IOException(
+            throw new IllegalArgumentException(
                     "Please ensure the image path has extension '.ppm', '.png', or 'jpg'");
         }
         return image;
@@ -161,7 +161,7 @@ public class MeanImageMedian {
             ImageIO.write(SwingFXUtils.fromFXImage(image, null),
                     fileExtension.substring(1), imagePath.toFile());
         } else {
-            throw new IOException(
+            throw new IllegalArgumentException(
                     "Please ensure the image path has extension '.ppm', '.png', or 'jpg'");
         }
     }
