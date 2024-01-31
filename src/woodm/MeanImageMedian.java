@@ -355,6 +355,11 @@ public class MeanImageMedian {
         return median;
     }
 
+    /**
+     * Checks whether the image path is null
+     * @param imagePath the image path to be checked
+     * @throws IllegalArgumentException thrown if the image path is null
+     */
     private static void checkImagePath(Path imagePath) {
         if(imagePath == null) {
             throw new IllegalArgumentException("Please ensure the image path is not null");
