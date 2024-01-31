@@ -309,6 +309,8 @@ public class MeanImageMedian {
      * The list is valid if no elements in the list are null, the size of the list
      * is greater than 2, and all elements have the same widths and heights as other elements.
      * @param inputImages the list to validate
+     * @throws IllegalArgumentException Thrown if there is less than 2 input images,
+     * any of the input images are null, or any of the input images have different dimensions
      */
     private static void checkInputImages(Image[] inputImages) {
         StringBuilder message = new StringBuilder();
