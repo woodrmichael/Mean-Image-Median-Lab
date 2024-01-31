@@ -10,7 +10,10 @@ package woodm;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.embed.swing.SwingFXUtils;
 
+import javax.imageio.ImageIO;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
@@ -28,6 +31,7 @@ public class MeanImageMedian {
      * Maximum color value
      */
     public static final int MAX_COLOR = 255;
+    private static final int MINIMUM_FILE_LENGTH = 5;
 
     /**
      * Calculates the median of all the images passed to the method.
@@ -41,20 +45,18 @@ public class MeanImageMedian {
      * the length of the array is less than two, or  if any of the input images differ in size.
      */
     public static Image calculateMedianImage(Image[] inputImages) {
-        if(checkInputImages(inputImages)) {
-            throw new IllegalArgumentException();
-        }
+        checkInputImages(inputImages);
         int width = (int) inputImages[0].getWidth();
         int height = (int) inputImages[0].getHeight();
         WritableImage image = new WritableImage(width, height);
-        for(int i = 0; i < width; i++) {
-            for(int j = 0; j < height; j++) {
+        for(int row = 0; row < width; row++) {
+            for(int col = 0; col < height; col++) {
                 int[] alpha = new int[inputImages.length];
                 int[] red = new int[inputImages.length];
                 int[] green = new int[inputImages.length];
                 int[] blue = new int[inputImages.length];
                 for(int x = 0; x < inputImages.length; x++) {
-                    int argb = inputImages[x].getPixelReader().getArgb(i, j);
+                    int argb = inputImages[x].getPixelReader().getArgb(row, col);
                     alpha[x] = argbToAlpha(argb);
                     red[x] = argbToRed(argb);
                     green[x] = argbToGreen(argb);
@@ -64,7 +66,7 @@ public class MeanImageMedian {
                 int r = calculateMedian(red);
                 int g = calculateMedian(green);
                 int b = calculateMedian(blue);
-                image.getPixelWriter().setArgb(i, j, argbToInt(a, r, g, b));
+                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
             }
         }
         return image;
@@ -82,20 +84,18 @@ public class MeanImageMedian {
      * the length of the array is less than two, or  if any of the input images differ in size.
      */
     public static Image calculateMeanImage(Image[] inputImages) {
-        if(checkInputImages(inputImages)) {
-            throw new IllegalArgumentException();
-        }
+        checkInputImages(inputImages);
         int width = (int) inputImages[0].getWidth();
         int height = (int) inputImages[0].getHeight();
         WritableImage image = new WritableImage(width, height);
-        for(int i = 0; i < width; i++) {
-            for(int j = 0; j < height; j++) {
+        for(int row = 0; row < width; row++) {
+            for(int col = 0; col < height; col++) {
                 int a = 0;
                 int r = 0;
                 int g = 0;
                 int b = 0;
-                for(int x = 0; x < inputImages.length; x++) {
-                    int argb = inputImages[x].getPixelReader().getArgb(i, j);
+                for (Image inputImage : inputImages) {
+                    int argb = inputImage.getPixelReader().getArgb(row, col);
                     a += argbToAlpha(argb);
                     r += argbToRed(argb);
                     g += argbToGreen(argb);
@@ -105,22 +105,64 @@ public class MeanImageMedian {
                 r = (int) Math.round(((double) r) / inputImages.length);
                 g = (int) Math.round(((double) g) / inputImages.length);
                 b = (int) Math.round(((double) b) / inputImages.length);
-                image.getPixelWriter().setArgb(i, j, argbToInt(a, r, g, b));
+                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
             }
         }
         return image;
     }
 
+    /**
+     * Reads an image in PPM, PNG, or JPG format
+     * @param imagePath the path to the image to be read
+     * @return An image object containing the image read from the file.
+     *
+     * @throws IllegalArgumentException Thrown if imagePath is null.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
+     */
     public static Image readImage(Path imagePath) throws IOException {
-        if(imagePath.toString().endsWith(".ppm")) {
-            return readPPMImage(imagePath);
+        checkImagePath(imagePath);
+        String path = imagePath.toString();
+        if(path.length() < MINIMUM_FILE_LENGTH) {
+            throw new IOException("Please ensure the image paths have lengths greater than 4");
         }
-        return new WritableImage(10, 1);
+        String fileExtension = path.substring(path.length() - 4);
+        Image image;
+        if(fileExtension.equals(".ppm")) {
+            image = readPPMImage(imagePath);
+        } else if(fileExtension.equals(".png") || fileExtension.equals(".jpg")) {
+            image = new Image(new FileInputStream(imagePath.toFile()));
+        } else {
+            throw new IOException(
+                    "Please ensure the image path has extension '.ppm', '.png', or 'jpg'");
+        }
+        return image;
     }
 
+    /**
+     * Writes an image in PPM, PNG, or JPG format
+     * @param imagePath the path to where the file should be written
+     * @param image the image containing the pixels to be written to the file
+     *
+     * @throws IllegalArgumentException Thrown if imagePath is null.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
+     */
     public static void writeImage(Path imagePath, Image image) throws IOException {
-        if(imagePath.toString().endsWith(".ppm")) {
+        checkImagePath(imagePath);
+        String path = imagePath.toString();
+        if(path.length() < MINIMUM_FILE_LENGTH) {
+            throw new IOException("Please ensure the image paths have lengths greater than 4");
+        }
+        String fileExtension = path.substring(path.length() - 4);
+        if(fileExtension.equals(".ppm")) {
             writePPMImage(imagePath, image);
+        } else if(fileExtension.equals(".png") || fileExtension.equals(".jpg")) {
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null),
+                    fileExtension.substring(1), imagePath.toFile());
+        } else {
+            throw new IOException(
+                    "Please ensure the image path has extension '.ppm', '.png', or 'jpg'");
         }
     }
 
@@ -135,25 +177,29 @@ public class MeanImageMedian {
      * there was trouble reading the file.
      */
     private static Image readPPMImage(Path imagePath) throws IOException {
-        if(imagePath == null) {
-            throw new IllegalArgumentException();
-        }
+        checkImagePath(imagePath);
         if(!imagePath.toString().endsWith(".ppm")) {
-            throw new IOException();
+            throw new IOException("Please ensure the image path has extension '.ppm'");
         }
         try (Scanner reader = new Scanner(imagePath)) {
-            reader.next();
+            if(!reader.next().equals("P3")) {
+                throw new IOException(
+                        "Invalid image format. The first non-comment line is not 'P3'");
+            }
             int width = reader.nextInt();
             int height = reader.nextInt();
             WritableImage image = new WritableImage(width, height);
-            reader.nextInt();
-            for(int j = 0; j < height; j++) {
-                for(int i = 0; i < width; i++) {
+            if(reader.nextInt() != MAX_COLOR) {
+                throw new IOException(
+                        "Invalid image format. The max value was not equal to " + MAX_COLOR);
+            }
+            for(int col = 0; col < height; col++) {
+                for(int row = 0; row < width; row++) {
                     int r = reader.nextInt();
                     int g = reader.nextInt();
                     int b = reader.nextInt();
                     int argb = argbToInt(MAX_COLOR, r, g, b);
-                    image.getPixelWriter().setArgb(i, j, argb);
+                    image.getPixelWriter().setArgb(row, col, argb);
                 }
             }
             return image;
@@ -171,11 +217,9 @@ public class MeanImageMedian {
      * there was trouble reading the file.
      */
     private static void writePPMImage(Path imagePath, Image image) throws IOException {
-        if(imagePath == null) {
-            throw new IllegalArgumentException();
-        }
+        checkImagePath(imagePath);
         if(!imagePath.toString().endsWith(".ppm")) {
-            throw new IOException();
+            throw new IOException("Please ensure the image path has extension '.ppm'");
         }
         try (PrintWriter writer = new PrintWriter(imagePath.toFile())) {
             int width = (int) image.getWidth();
@@ -183,9 +227,9 @@ public class MeanImageMedian {
             writer.println("P3");
             writer.println(width + " " + height);
             writer.println(MAX_COLOR);
-            for(int j = 0; j < height; j++) {
-                for(int i = 0; i < width; i++) {
-                    int argb = image.getPixelReader().getArgb(i, j);
+            for(int col = 0; col < height; col++) {
+                for(int row = 0; row < width; row++) {
+                    int argb = image.getPixelReader().getArgb(row, col);
                     int r = argbToRed(argb);
                     int g = argbToGreen(argb);
                     int b = argbToBlue(argb);
@@ -265,15 +309,19 @@ public class MeanImageMedian {
      * The list is valid if no elements in the list are null, the size of the list
      * is greater than 2, and all elements have the same widths and heights as other elements.
      * @param inputImages the list to validate
-     * @return false if valid, true if invalid
      */
-    private static boolean checkInputImages(Image[] inputImages) {
+    private static void checkInputImages(Image[] inputImages) {
+        StringBuilder message = new StringBuilder();
+        boolean flag = false;
         if(inputImages.length < 2) {
-            return true;
+            flag = true;
+            message.append("Please ensure there are at least 2 input images. ");
+
         }
-        for(int i = 0; i < inputImages.length; i++) {
-            if(inputImages[i] == null) {
-                return true;
+        for (Image inputImage : inputImages) {
+            if (inputImage == null) {
+                flag = true;
+                message.append("Please ensure that none of the input images are null. ");
             }
         }
         int width = (int) inputImages[0].getWidth();
@@ -281,10 +329,13 @@ public class MeanImageMedian {
         for(int i = 1; i < inputImages.length; i++) {
             if(width != (int) inputImages[i].getWidth() ||
                     height != (int) inputImages[i].getHeight()) {
-                return true;
+                flag = true;
+                message.append("Please ensure that all input images have the same dimensions");
             }
         }
-        return false;
+        if(flag) {
+            throw new IllegalArgumentException(message.toString());
+        }
     }
 
     /**
@@ -295,9 +346,18 @@ public class MeanImageMedian {
     private static int calculateMedian(int[] arr) {
         Arrays.sort(arr);
         int len = arr.length;
+        int median;
         if(len % 2 == 1) {
-            return arr[len / 2];
+            median = arr[len / 2];
+        } else {
+            median = (int) Math.round((arr[len / 2] + arr[len / 2 - 1]) / 2.0);
         }
-        return (int) Math.round((arr[len / 2] + arr[len / 2 - 1]) / 2.0);
+        return median;
+    }
+
+    private static void checkImagePath(Path imagePath) {
+        if(imagePath == null) {
+            throw new IllegalArgumentException("Please ensure the image path is not null");
+        }
     }
 }
