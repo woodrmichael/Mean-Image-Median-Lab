@@ -49,16 +49,16 @@ Remove the dashes on this line when lab 2 is ready to be graded (and commit and 
 
 ## [Link to Lab 3 assignment](https://csse.msoe.us/csc1120/lab3)
 
-* [ ] Commit 1 "FXML shell"
+* [x] Commit 1 "FXML shell"
     - Create the FXML file needed to support the GUI functionality
     - Create the `Lab3` class that loads the FXML file and displays the GUI
-* [ ] Commit 2 "Display Image"
+* [x] Commit 2 "Display Image"
     - Update the `MeanImageMedian` class so that it loads the FXML file
     - Minimally implement the `Controller` class so that the program displays the first input
       image loaded.
-* [ ] Commit 3 "Input images"
+* [x] Commit 3 "Input images"
     - Design a technique to specify how many input images you wish to load and how to specify them
-    - Replace this line with a description of how the user specifies what images to use as input
+    - You click the add image button for all the images you want, then click save as once you are finished and want to save your image.
 * [ ] Commit 4 "Lab completed"
     - Update your code based on feedback from your instructor (if available)
     - Finish all assignment requirements.
