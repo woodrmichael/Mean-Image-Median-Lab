@@ -25,4 +25,8 @@ public class Lab3 extends Application {
         stage.setScene(new Scene(pane));
         stage.show();
     }
+
+    public static void main(String[] args) {
+        Application.launch(args);
+    }
 }
