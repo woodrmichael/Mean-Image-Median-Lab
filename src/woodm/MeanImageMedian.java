@@ -7,7 +7,6 @@
  */
 package woodm;
 
-
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.embed.swing.SwingFXUtils;
@@ -19,7 +18,6 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Scanner;
-
 
 /**
  * The MeanImageMedian class offers multiple methods to generate mean and median images
@@ -51,21 +49,11 @@ public class MeanImageMedian {
         WritableImage image = new WritableImage(width, height);
         for(int row = 0; row < width; row++) {
             for(int col = 0; col < height; col++) {
-                int[] alpha = new int[inputImages.length];
-                int[] red = new int[inputImages.length];
-                int[] green = new int[inputImages.length];
-                int[] blue = new int[inputImages.length];
-                for(int x = 0; x < inputImages.length; x++) {
-                    int argb = inputImages[x].getPixelReader().getArgb(row, col);
-                    alpha[x] = argbToAlpha(argb);
-                    red[x] = argbToRed(argb);
-                    green[x] = argbToGreen(argb);
-                    blue[x] = argbToBlue(argb);
-                }
-                int a = calculateMedian(alpha);
-                int r = calculateMedian(red);
-                int g = calculateMedian(green);
-                int b = calculateMedian(blue);
+                int[][] arr = getARGBArrays(inputImages, row, col);
+                int a = calculateMedian(arr[0]);
+                int r = calculateMedian(arr[1]);
+                int g = calculateMedian(arr[2]);
+                int b = calculateMedian(arr[3]);
                 image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
             }
         }
@@ -105,6 +93,35 @@ public class MeanImageMedian {
                 r = (int) Math.round(((double) r) / inputImages.length);
                 g = (int) Math.round(((double) g) / inputImages.length);
                 b = (int) Math.round(((double) b) / inputImages.length);
+                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
+            }
+        }
+        return image;
+    }
+    /**
+     * Calculates the darker or lighter image of all the images passed to the method.
+     * <br />
+     * Each pixel in the output image consists is calculated as either the lighter or darker
+     * red, green, and blue components of the input images at the same location.
+     * @param inputImages Images to be used as input
+     * @param transformation the type of transformation, either 'Darker' or 'Lighter'
+     * @return An image containing the lighter or darker value for each pixel in the input images
+     *
+     * @throws IllegalArgumentException Thrown if inputImages or any element of inputImages is null,
+     * the length of the array is less than two, or  if any of the input images differ in size.
+     */
+    public static Image transformColorChange(Image[] inputImages, String transformation) {
+        checkInputImages(inputImages);
+        int width = (int) inputImages[0].getWidth();
+        int height = (int) inputImages[0].getHeight();
+        WritableImage image = new WritableImage(width, height);
+        for(int row = 0; row < width; row++) {
+            for(int col = 0; col < height; col++) {
+                int[][] arr = getARGBArrays(inputImages, row, col);
+                int a = calculateColorChange(arr[0], transformation);
+                int r = calculateColorChange(arr[1], transformation);
+                int g = calculateColorChange(arr[2], transformation);
+                int b = calculateColorChange(arr[3], transformation);
                 image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
             }
         }
@@ -153,6 +170,9 @@ public class MeanImageMedian {
         String path = imagePath.toString();
         if(path.length() < MINIMUM_FILE_LENGTH) {
             throw new IOException("Please ensure the image paths have lengths greater than 4");
+        }
+        if(image == null) {
+            throw new IllegalArgumentException("Please ensure the image is not null");
         }
         String fileExtension = path.substring(path.length() - 4);
         if(fileExtension.equals(".ppm")) {
@@ -322,17 +342,24 @@ public class MeanImageMedian {
         }
         for (Image inputImage : inputImages) {
             if (inputImage == null) {
+                if(!flag) {
+                    message.append("Please ensure that none of the input images are null. ");
+                }
                 flag = true;
-                message.append("Please ensure that none of the input images are null. ");
             }
         }
-        int width = (int) inputImages[0].getWidth();
-        int height = (int) inputImages[0].getHeight();
-        for(int i = 1; i < inputImages.length; i++) {
-            if(width != (int) inputImages[i].getWidth() ||
-                    height != (int) inputImages[i].getHeight()) {
-                flag = true;
-                message.append("Please ensure that all input images have the same dimensions");
+        if(!flag) {
+            int width = (int) inputImages[0].getWidth();
+            int height = (int) inputImages[0].getHeight();
+            for(int i = 1; i < inputImages.length; i++) {
+                if(width != (int) inputImages[i].getWidth() ||
+                        height != (int) inputImages[i].getHeight()) {
+                    if(!flag) {
+                        message.append(
+                                "Please ensure that all input images have the same dimensions");
+                    }
+                    flag = true;
+                }
             }
         }
         if(flag) {
@@ -366,5 +393,51 @@ public class MeanImageMedian {
         if(imagePath == null) {
             throw new IllegalArgumentException("Please ensure the image path is not null");
         }
+    }
+
+    /**
+     * Calculates the darker or lighter pixel depending on the type of transformation
+     * @param arr the array of pixels
+     * @param transformation either 'Darker' or 'Lighter'
+     * @return a pixel value for the darker or lighter pixel
+     */
+    private static int calculateColorChange(int[] arr, String transformation) {
+        Arrays.sort(arr);
+        int value;
+        if(transformation.equals("Darker")) {
+            value = arr[0];
+        } else {
+            value = arr[arr.length - 1];
+        }
+        return value;
+    }
+
+    /**
+     * Gets arrays of Alpha, Red, Green, and Blue values to be used for
+     * median calculations and other transformations
+     * @param inputImages Images to be used as input
+     * @param row the current row for the pixels
+     * @param col the current column for the pixels
+     * @return a 2D array containing arrays containing each Alpha, Red, Green, and Blue pixel
+     * values for each image at a specified row and column.
+     */
+    private static int[][] getARGBArrays(Image[] inputImages, int row, int col) {
+        int[] alpha = new int[inputImages.length];
+        int[] red = new int[inputImages.length];
+        int[] green = new int[inputImages.length];
+        int[] blue = new int[inputImages.length];
+        for(int i = 0; i < inputImages.length; i++) {
+            int argb = inputImages[i].getPixelReader().getArgb(row, col);
+            alpha[i] = argbToAlpha(argb);
+            red[i] = argbToRed(argb);
+            green[i] = argbToGreen(argb);
+            blue[i] = argbToBlue(argb);
+        }
+        int[][] arr = new int[4][];
+        arr[0] = alpha;
+        arr[1] = red;
+        arr[2] = green;
+        arr[3] = blue;
+        return arr;
     }
 }

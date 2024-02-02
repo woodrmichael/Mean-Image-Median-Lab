@@ -20,10 +20,15 @@ import java.io.IOException;
  */
 public class Lab3 extends Application {
     @Override
-    public void start(Stage stage) throws IOException {
-        Parent pane = FXMLLoader.load(getClass().getResource("layout.fxml"));
-        stage.setScene(new Scene(pane));
-        stage.show();
+    public void start(Stage stage) {
+        try {
+            Parent pane = FXMLLoader.load(getClass().getResource("layout.fxml"));
+            stage.setScene(new Scene(pane));
+            stage.setTitle("Mean Image Median");
+            stage.show();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
