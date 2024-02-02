@@ -63,4 +63,4 @@ Remove the dashes on this line when lab 2 is ready to be graded (and commit and 
     - Update your code based on feedback from your instructor (if available)
     - Finish all assignment requirements.
 
-Remove the dashes on this line when lab 3 is ready to be graded (and commit and push): D-O-N-E-3
+Remove the dashes on this line when lab 3 is ready to be graded (and commit and push): DONE3
