@@ -59,8 +59,8 @@ Remove the dashes on this line when lab 2 is ready to be graded (and commit and 
 * [x] Commit 3 "Input images"
     - Design a technique to specify how many input images you wish to load and how to specify them
     - You click the add image button everytime you want to add an image, then click save as once you are finished and want to save your image. You can add as many images as your computer can handle as long as it is >= 2.
-* [ ] Commit 4 "Lab completed"
+* [x] Commit 4 "Lab completed"
     - Update your code based on feedback from your instructor (if available)
     - Finish all assignment requirements.
 
-Remove the dashes on this line when lab 3 is ready to be graded (and commit and push): D-O-N-E-3
+Remove the dashes on this line when lab 3 is ready to be graded (and commit and push): DONE3
