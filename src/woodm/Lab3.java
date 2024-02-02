@@ -25,6 +25,7 @@ public class Lab3 extends Application {
             Parent pane = FXMLLoader.load(getClass().getResource("layout.fxml"));
             stage.setScene(new Scene(pane));
             stage.setTitle("Mean Image Median");
+            stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
             System.out.println("There was an error reading the FXML file, please try again");
