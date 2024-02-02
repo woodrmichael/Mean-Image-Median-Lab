@@ -27,7 +27,7 @@ public class Lab3 extends Application {
             stage.setTitle("Mean Image Median");
             stage.show();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println("There was an error reading the FXML file, please try again");
         }
     }
 
