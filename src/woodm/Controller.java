@@ -53,7 +53,7 @@ public class Controller {
      * with a remove button below to remove the image if needed
      */
     @FXML
-    public void inputImages() {
+    private void inputImages() {
         this.messageBox.setText("");
         final int inputImageWidth = 240;
         final int inputImageHeight = 170;
@@ -87,7 +87,7 @@ public class Controller {
      * Saves the image to a file at the users requested location
      */
     @FXML
-    public void save() {
+    private void save() {
         this.messageBox.setText("");
         try {
             Path imagePath = this.fileChooser.showSaveDialog(null).toPath();
@@ -106,7 +106,7 @@ public class Controller {
      * @param actionEvent an ActionEvent object used to get the source of the event
      */
     @FXML
-    public void calculateMeanMedian(ActionEvent actionEvent) {
+    private void calculateMeanMedian(ActionEvent actionEvent) {
         this.messageBox.setText("");
         Button button = (Button) actionEvent.getSource();
         Image[] inputImages = new Image[this.inputImages.size()];
@@ -128,7 +128,7 @@ public class Controller {
      * Removes the desired image from the input images
      * @param actionEvent an ActionEvent object used to get the source of the event
      */
-    public void removeImage(ActionEvent actionEvent) {
+    private void removeImage(ActionEvent actionEvent) {
         this.messageBox.setText("");
         Button removeButton = (Button) actionEvent.getSource();
         VBox imagePanel = (VBox) removeButton.getParent().getParent();
@@ -142,7 +142,7 @@ public class Controller {
      * @param actionEvent an ActionEvent object used to get the source of the event
      */
     @FXML
-    public void transformColorChange(ActionEvent actionEvent) {
+    private void transformColorChange(ActionEvent actionEvent) {
         this.messageBox.setText("");
         Image[] inputImages = new Image[this.inputImages.size()];
         Button button = (Button) actionEvent.getSource();
@@ -161,7 +161,7 @@ public class Controller {
      * Clears all the text fields, input images, and the final image displayed at the bottom
      */
     @FXML
-    public void clear() {
+    private void clear() {
         this.messageBox.setText("");
         this.imageContainer.getChildren().clear();
         this.inputImages.clear();
