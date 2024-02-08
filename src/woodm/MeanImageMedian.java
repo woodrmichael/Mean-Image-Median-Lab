@@ -31,7 +31,13 @@ public class MeanImageMedian {
     public static final int MAX_COLOR = 255;
     private static final int MINIMUM_FILE_LENGTH = 5;
 
+    public static Image generateImage(Image[] images, String operation) {
 
+    }
+
+    public static Image applyTransformation(Image[] images, Transform transformation) {
+
+    }
 
 
     /**
