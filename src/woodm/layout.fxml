@@ -16,13 +16,14 @@
       </ScrollPane>
       <HBox prefHeight="25.0" prefWidth="600.0">
          <children>
-            <Button mnemonicParsing="false" onAction="#inputImages" prefHeight="25.0" prefWidth="85.0" text="Add Image" />
-            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="85.0" text="Mean" />
-            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="85.0" text="Median" />
-            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="85.0" text="Min" />
-            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="85.0" text="Max" />
-            <Button mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="85.0" text="Save as" />
-            <Button mnemonicParsing="false" onAction="#clear" prefHeight="25.0" prefWidth="85.0" text="Clear" />
+            <Button mnemonicParsing="false" onAction="#inputImages" prefHeight="25.0" prefWidth="75.0" text="Add Image" />
+            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Mean" />
+            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Median" />
+            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Min" />
+            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Max" />
+            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Random" />
+            <Button mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="75.0" text="Save as" />
+            <Button mnemonicParsing="false" onAction="#clear" prefHeight="25.0" prefWidth="75.0" text="Clear" />
          </children>
       </HBox>
       <HBox alignment="TOP_CENTER" prefHeight="201.0" prefWidth="552.0">

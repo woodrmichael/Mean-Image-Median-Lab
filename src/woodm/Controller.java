@@ -94,7 +94,8 @@ public class Controller {
             if(imageFile != null) {
                 Path imagePath = imageFile.toPath();
                 MeanImageMedian.writeImage(imagePath, this.finalImage);
-                this.messageBox.setText("Successfully saved file to: " + imagePath.toAbsolutePath());
+                this.messageBox.setText(
+                        "Successfully saved file to: " + imagePath.toAbsolutePath());
             }
         } catch(IOException | IllegalArgumentException e) {
             this.messageBox.setText(e.getMessage());
@@ -112,7 +113,8 @@ public class Controller {
         Button button = (Button) actionEvent.getSource();
         Image[] inputImages = new Image[this.inputImages.size()];
         try {
-            this.finalImage = MeanImageMedian.generateImage(this.inputImages.toArray(inputImages), button.getText());
+            this.finalImage = MeanImageMedian.generateImage(
+                    this.inputImages.toArray(inputImages), button.getText());
         } catch(IllegalArgumentException e) {
             this.messageBox.setText(e.getMessage());
         }
