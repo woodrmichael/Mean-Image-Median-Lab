@@ -9,6 +9,7 @@ package woodm;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -34,8 +35,9 @@ public class Controller {
     @FXML
     private Label messageBox;
     private Image finalImage;
-    private final ArrayList<Image> inputImages;
+    private final List<Image> inputImages;
     private final FileChooser fileChooser;
+    private final Alert alert;
 
     /**
      * Creates a new Controller with a FileChooser that has ExtensionFilters
@@ -47,6 +49,7 @@ public class Controller {
                 new FileChooser.ExtensionFilter(
                         "Image Files", "*.png", "*.jpg", "*.ppm", "*.msoe"));
         this.inputImages = new ArrayList<>();
+        this.alert = new Alert(Alert.AlertType.WARNING);
     }
 
     /**
@@ -80,7 +83,8 @@ public class Controller {
                 }
             }
         } catch(IOException | IllegalArgumentException e) {
-            this.messageBox.setText(e.getMessage());
+            this.alert.setContentText(e.getMessage());
+            this.alert.showAndWait();
         }
     }
 
@@ -99,7 +103,8 @@ public class Controller {
                         "Successfully saved file to: " + imagePath.toAbsolutePath());
             }
         } catch(IOException | IllegalArgumentException e) {
-            this.messageBox.setText(e.getMessage());
+            this.alert.setContentText(e.getMessage());
+            this.alert.showAndWait();
         }
     }
 
@@ -117,7 +122,8 @@ public class Controller {
             this.finalImage = MeanImageMedian.generateImage(
                     this.inputImages.toArray(inputImages), button.getText());
         } catch(IllegalArgumentException e) {
-            this.messageBox.setText(e.getMessage());
+            this.alert.setContentText(e.getMessage());
+            this.alert.showAndWait();
         }
         this.finalImageView.setImage(this.finalImage);
     }
