@@ -59,27 +59,27 @@ public class Controller {
         final int inputImageHeight = 170;
         try {
             List<File> imageFiles = this.fileChooser.showOpenMultipleDialog(null);
-            for (File imageFile : imageFiles) {
-                Path imagePath = imageFile.toPath();
-                Image image = MeanImageMedian.readImage(imagePath);
-                this.inputImages.addFirst(image);
-                VBox imagePanel = new VBox();
-                this.imageContainer.getChildren().addFirst(imagePanel);
-                ImageView imageView = new ImageView(image);
-                imageView.setFitWidth(inputImageWidth);
-                imageView.setFitHeight(inputImageHeight);
-                HBox bottomContainer = new HBox();
-                Button removeButton = new Button("Remove");
-                removeButton.setOnAction(this::removeImage);
-                Label dimensionLabel = new Label(imagePath.getFileName() + "\nDimensions: " +
-                        (int) image.getWidth() + " x " + (int) image.getHeight());
-                bottomContainer.getChildren().addAll(removeButton, dimensionLabel);
-                imagePanel.getChildren().addAll(imageView, bottomContainer);
+            if(imageFiles != null) {
+                for (File imageFile : imageFiles) {
+                    Path imagePath = imageFile.toPath();
+                    Image image = MeanImageMedian.readImage(imagePath);
+                    this.inputImages.addFirst(image);
+                    VBox imagePanel = new VBox();
+                    this.imageContainer.getChildren().addFirst(imagePanel);
+                    ImageView imageView = new ImageView(image);
+                    imageView.setFitWidth(inputImageWidth);
+                    imageView.setFitHeight(inputImageHeight);
+                    HBox bottomContainer = new HBox();
+                    Button removeButton = new Button("Remove");
+                    removeButton.setOnAction(this::removeImage);
+                    Label dimensionLabel = new Label(imagePath.getFileName() + "\nDimensions: " +
+                            (int) image.getWidth() + " x " + (int) image.getHeight());
+                    bottomContainer.getChildren().addAll(removeButton, dimensionLabel);
+                    imagePanel.getChildren().addAll(imageView, bottomContainer);
+                }
             }
         } catch(IOException | IllegalArgumentException e) {
             this.messageBox.setText(e.getMessage());
-        } catch(NullPointerException e) {
-            this.messageBox.setText("Please pick at least one image file");
         }
     }
 
@@ -90,13 +90,14 @@ public class Controller {
     private void save() {
         this.messageBox.setText("");
         try {
-            Path imagePath = this.fileChooser.showSaveDialog(null).toPath();
-            MeanImageMedian.writeImage(imagePath, this.finalImage);
-            this.messageBox.setText("Successfully saved file to: " + imagePath.toAbsolutePath());
+            File imageFile = this.fileChooser.showSaveDialog(null);
+            if(imageFile != null) {
+                Path imagePath = imageFile.toPath();
+                MeanImageMedian.writeImage(imagePath, this.finalImage);
+                this.messageBox.setText("Successfully saved file to: " + imagePath.toAbsolutePath());
+            }
         } catch(IOException | IllegalArgumentException e) {
             this.messageBox.setText(e.getMessage());
-        } catch(NullPointerException e) {
-            this.messageBox.setText("Please select a image file to save your image to");
         }
     }
 

@@ -31,6 +31,9 @@ public class MeanImageMedian {
     public static final int MAX_COLOR = 255;
     private static final int MINIMUM_FILE_LENGTH = 5;
 
+
+
+
     /**
      * Calculates the median of all the images passed to the method.
      * <br />
@@ -41,7 +44,9 @@ public class MeanImageMedian {
      *
      * @throws IllegalArgumentException Thrown if inputImages or any element of inputImages is null,
      * the length of the array is less than two, or  if any of the input images differ in size.
+     * @deprecated use {@link #generateImage()} instead
      */
+    @Deprecated
     public static Image calculateMedianImage(Image[] inputImages) {
         checkInputImages(inputImages);
         int width = (int) inputImages[0].getWidth();
@@ -70,7 +75,9 @@ public class MeanImageMedian {
      *
      * @throws IllegalArgumentException Thrown if inputImages or any element of inputImages is null,
      * the length of the array is less than two, or  if any of the input images differ in size.
+     * @deprecated use {@link #generateImage()} instead
      */
+    @Deprecated
     public static Image calculateMeanImage(Image[] inputImages) {
         checkInputImages(inputImages);
         int width = (int) inputImages[0].getWidth();
