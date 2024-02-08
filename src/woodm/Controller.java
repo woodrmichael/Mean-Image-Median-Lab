@@ -44,7 +44,8 @@ public class Controller {
     public Controller() {
         this.fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.ppm"));
+                new FileChooser.ExtensionFilter(
+                        "Image Files", "*.png", "*.jpg", "*.ppm", "*.msoe"));
         this.inputImages = new ArrayList<>();
     }
 
@@ -103,8 +104,8 @@ public class Controller {
     }
 
     /**
-     * Calculates the mean or the median of the input images
-     * and displays the mean image at the bottom of the window
+     * Calculates the final image based on which button is pressed to get the transformation type
+     * Displays this image at the bottom of the screen.
      * @param actionEvent an ActionEvent object used to get the source of the event
      */
     @FXML

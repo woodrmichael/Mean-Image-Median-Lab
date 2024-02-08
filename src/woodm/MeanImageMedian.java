@@ -12,9 +12,12 @@ import javafx.scene.image.WritableImage;
 import javafx.embed.swing.SwingFXUtils;
 
 import javax.imageio.ImageIO;
-import java.io.FileInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Random;
@@ -31,6 +34,7 @@ public class MeanImageMedian {
      */
     public static final int MAX_COLOR = 255;
     private static final int MINIMUM_FILE_LENGTH = 5;
+    private static final int MSOE_FILE_FIRST_LINE = 1297305413;
 
     /**
      * Generates an image based on a desired operation to be done on the set of input images
@@ -200,21 +204,27 @@ public class MeanImageMedian {
         if(path.length() < MINIMUM_FILE_LENGTH) {
             throw new IOException("Please ensure the image paths have lengths greater than 4");
         }
-        String fileExtension = path.substring(path.length() - 4);
+        String fileExtension = path.substring(path.length() - MINIMUM_FILE_LENGTH);
         Image image;
-        if(fileExtension.equals(".ppm")) {
+        if(fileExtension.substring(1).equals(".ppm")) {
             image = readPPMImage(imagePath);
-        } else if(fileExtension.equals(".png") || fileExtension.equals(".jpg")) {
+        } else if(fileExtension.substring(1).equals(".png") ||
+                fileExtension.substring(1).equals(".jpg")) {
             image = new Image(new FileInputStream(imagePath.toFile()));
+        } else if(fileExtension.equals(".msoe")) {
+            if(path.length() < MINIMUM_FILE_LENGTH + 1) {
+                throw new IOException("Please ensure msoe image paths have lengths greater than 5");
+            }
+            image = readMSOEImage(imagePath);
         } else {
             throw new IllegalArgumentException(
-                    "Please ensure the image path has extension '.ppm', '.png', or 'jpg'");
+                    "Please ensure the image path has extension '.ppm', '.png', 'jpg', or 'msoe'");
         }
         return image;
     }
 
     /**
-     * Writes an image in PPM, PNG, or JPG format
+     * Writes an image in PPM, PNG, JPG, or MSOE format
      * @param imagePath the path to where the file should be written
      * @param image the image containing the pixels to be written to the file
      *
@@ -231,15 +241,21 @@ public class MeanImageMedian {
         if(image == null) {
             throw new IllegalArgumentException("Please ensure the image is not null");
         }
-        String fileExtension = path.substring(path.length() - 4);
-        if(fileExtension.equals(".ppm")) {
+        String fileExtension = path.substring(path.length() - MINIMUM_FILE_LENGTH);
+        if(fileExtension.substring(1).equals(".ppm")) {
             writePPMImage(imagePath, image);
-        } else if(fileExtension.equals(".png") || fileExtension.equals(".jpg")) {
+        } else if(fileExtension.substring(1).equals(".png") ||
+                fileExtension.substring(1).equals(".jpg")) {
             ImageIO.write(SwingFXUtils.fromFXImage(image, null),
                     fileExtension.substring(1), imagePath.toFile());
+        } else if(fileExtension.equals(".msoe")) {
+            if(path.length() < MINIMUM_FILE_LENGTH + 1) {
+                throw new IOException("Please ensure msoe image paths have lengths greater than 5");
+            }
+            writeMSOEImage(imagePath, image);
         } else {
             throw new IllegalArgumentException(
-                    "Please ensure the image path has extension '.ppm', '.png', or 'jpg'");
+                    "Please ensure the image path has extension '.ppm', '.png', 'jpg', or 'msoe'");
         }
     }
 
@@ -313,6 +329,49 @@ public class MeanImageMedian {
                     writer.format("%3d %3d %3d   ", r, g, b);
                 }
                 writer.println();
+            }
+        }
+    }
+
+    private static Image readMSOEImage(Path imagePath) throws IOException {
+        checkImagePath(imagePath);
+        if(!imagePath.toString().endsWith(".msoe")) {
+            throw new IOException("Please ensure the image path has extension '.msoe'");
+        }
+        try (DataInputStream reader = new DataInputStream(Files.newInputStream(imagePath))) {
+            if(reader.readInt() != MSOE_FILE_FIRST_LINE) {
+                throw new IOException(
+                        "Invalid image format. The first integer must be " + MSOE_FILE_FIRST_LINE);
+            }
+            int width = reader.readInt();
+            int height = reader.readInt();
+            WritableImage image = new WritableImage(width, height);
+            for(int col = 0; col < height; col++) {
+                for(int row = 0; row < width; row++) {
+                    int argb = reader.readInt();
+                    image.getPixelWriter().setArgb(row, col, argb);
+                }
+            }
+            return image;
+        }
+    }
+
+    private static void writeMSOEImage(Path imagePath, Image image) throws IOException {
+        checkImagePath(imagePath);
+        if(!imagePath.toString().endsWith(".msoe")) {
+            throw new IOException("Please ensure the image path has extension '.msoe'");
+        }
+        try(DataOutputStream writer = new DataOutputStream(Files.newOutputStream(imagePath))) {
+            int width = (int) image.getWidth();
+            int height = (int) image.getHeight();
+            writer.writeInt(MSOE_FILE_FIRST_LINE);
+            writer.writeInt(width);
+            writer.writeInt(height);
+            for(int col = 0; col < height; col++) {
+                for(int row = 0; row < width; row++) {
+                    int argb = image.getPixelReader().getArgb(row, col);
+                    writer.writeInt(argb);
+                }
             }
         }
     }
@@ -440,6 +499,11 @@ public class MeanImageMedian {
         return median;
     }
 
+    /**
+     * Calculates the mean of the given array
+     * @param arr the given array
+     * @return the mean value of the array
+     */
     private static int calculateMean(int[] arr) {
         double sum = 0;
         for (int val : arr) {
@@ -448,16 +512,31 @@ public class MeanImageMedian {
         return (int) Math.round(sum / arr.length);
     }
 
+    /**
+     * Calculates the maximum value of a given array
+     * @param arr the given array
+     * @return the maximum value in the array
+     */
     private static int calculateMax(int[] arr) {
         Arrays.sort(arr);
         return arr[arr.length - 1];
     }
 
+    /**
+     * Calculates the minimum value of a given array
+     * @param arr the given array
+     * @return the minimum value in the array
+     */
     private static int calculateMin(int[] arr) {
         Arrays.sort(arr);
         return arr[0];
     }
 
+    /**
+     * Returns a random value in the given array
+     * @param arr the given array
+     * @return a random value from the array
+     */
     private static int calculateRandom(int[] arr) {
         return arr[new Random().nextInt(arr.length)];
     }
