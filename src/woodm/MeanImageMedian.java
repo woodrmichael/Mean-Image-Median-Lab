@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -32,11 +33,42 @@ public class MeanImageMedian {
     private static final int MINIMUM_FILE_LENGTH = 5;
 
     public static Image generateImage(Image[] images, String operation) {
-
+        checkInputImages(images);
+        return switch (operation) {
+            case "Mean" -> applyTransformation(images, MeanImageMedian::calculateMean);
+            case "Median" -> applyTransformation(images, MeanImageMedian::calculateMedian);
+            case "Min" -> applyTransformation(images, MeanImageMedian::calculateMin);
+            case "Max" -> applyTransformation(images, MeanImageMedian::calculateMax);
+            case "Random" -> applyTransformation(images, MeanImageMedian::calculateRandom);
+            default -> throw new IllegalArgumentException("Not a valid operation");
+        };
     }
 
-    public static Image applyTransformation(Image[] images, Transform transformation) {
-
+    private static Image applyTransformation(Image[] images, Transform transformation) {
+        int width = (int) images[0].getWidth();
+        int height = (int) images[0].getHeight();
+        WritableImage image = new WritableImage(width, height);
+        for(int row = 0; row < width; row++) {
+            for (int col = 0; col < height; col++) {
+                int[] alpha = new int[images.length];
+                int[] red = new int[images.length];
+                int[] green = new int[images.length];
+                int[] blue = new int[images.length];
+                for(int i = 0; i < images.length; i++) {
+                    int argb = images[i].getPixelReader().getArgb(row, col);
+                    alpha[i] = argbToAlpha(argb);
+                    red[i] = argbToRed(argb);
+                    green[i] = argbToGreen(argb);
+                    blue[i] = argbToBlue(argb);
+                }
+                int a = transformation.apply(alpha);
+                int r = transformation.apply(red);
+                int g = transformation.apply(green);
+                int b = transformation.apply(blue);
+                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
+            }
+        }
+        return image;
     }
 
 
@@ -50,7 +82,7 @@ public class MeanImageMedian {
      *
      * @throws IllegalArgumentException Thrown if inputImages or any element of inputImages is null,
      * the length of the array is less than two, or  if any of the input images differ in size.
-     * @deprecated use {@link #generateImage()} instead
+     * @deprecated use {@link #generateImage(Image[], String)} instead
      */
     @Deprecated
     public static Image calculateMedianImage(Image[] inputImages) {
@@ -60,12 +92,12 @@ public class MeanImageMedian {
         WritableImage image = new WritableImage(width, height);
         for(int row = 0; row < width; row++) {
             for(int col = 0; col < height; col++) {
-                int[][] arr = getARGBArrays(inputImages, row, col);
-                int a = calculateMedian(arr[0]);
-                int r = calculateMedian(arr[1]);
-                int g = calculateMedian(arr[2]);
-                int b = calculateMedian(arr[3]);
-                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
+//                int[][] arr = getARGBArrays(inputImages, row, col);
+//                int a = calculateMedian(arr[0]);
+//                int r = calculateMedian(arr[1]);
+//                int g = calculateMedian(arr[2]);
+//                int b = calculateMedian(arr[3]);
+//                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
             }
         }
         return image;
@@ -81,7 +113,7 @@ public class MeanImageMedian {
      *
      * @throws IllegalArgumentException Thrown if inputImages or any element of inputImages is null,
      * the length of the array is less than two, or  if any of the input images differ in size.
-     * @deprecated use {@link #generateImage()} instead
+     * @deprecated use {@link #generateImage(Image[], String)} instead
      */
     @Deprecated
     public static Image calculateMeanImage(Image[] inputImages) {
@@ -122,7 +154,9 @@ public class MeanImageMedian {
      *
      * @throws IllegalArgumentException Thrown if inputImages or any element of inputImages is null,
      * the length of the array is less than two, or  if any of the input images differ in size.
+     * @deprecated use {@link #generateImage(Image[], String)} instead
      */
+    @Deprecated
     public static Image transformColorChange(Image[] inputImages, String transformation) {
         checkInputImages(inputImages);
         int width = (int) inputImages[0].getWidth();
@@ -130,12 +164,12 @@ public class MeanImageMedian {
         WritableImage image = new WritableImage(width, height);
         for(int row = 0; row < width; row++) {
             for(int col = 0; col < height; col++) {
-                int[][] arr = getARGBArrays(inputImages, row, col);
-                int a = calculateColorChange(arr[0], transformation);
-                int r = calculateColorChange(arr[1], transformation);
-                int g = calculateColorChange(arr[2], transformation);
-                int b = calculateColorChange(arr[3], transformation);
-                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
+//                int[][] arr = getARGBArrays(inputImages, row, col);
+//                int a = calculateColorChange(arr[0], transformation);
+//                int r = calculateColorChange(arr[1], transformation);
+//                int g = calculateColorChange(arr[2], transformation);
+//                int b = calculateColorChange(arr[3], transformation);
+//                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
             }
         }
         return image;
@@ -351,7 +385,6 @@ public class MeanImageMedian {
         if(inputImages.length < 2) {
             flag = true;
             message.append("Please ensure there are at least 2 input images. ");
-
         }
         for (Image inputImage : inputImages) {
             if (inputImage == null) {
@@ -397,6 +430,28 @@ public class MeanImageMedian {
         return median;
     }
 
+    private static int calculateMean(int[] arr) {
+        double sum = 0;
+        for (int val : arr) {
+            sum += val;
+        }
+        return (int) Math.round(sum / arr.length);
+    }
+
+    private static int calculateMax(int[] arr) {
+        Arrays.sort(arr);
+        return arr[arr.length - 1];
+    }
+
+    private static int calculateMin(int[] arr) {
+        Arrays.sort(arr);
+        return arr[0];
+    }
+
+    private static int calculateRandom(int[] arr) {
+        return arr[new Random().nextInt(arr.length)];
+    }
+
     /**
      * Checks whether the image path is null
      * @param imagePath the image path to be checked
@@ -413,7 +468,9 @@ public class MeanImageMedian {
      * @param arr the array of pixels
      * @param transformation either 'Darker' or 'Lighter'
      * @return a pixel value for the darker or lighter pixel
+     * @deprecated use {@link #applyTransformation(Image[], Transform)} instead
      */
+    @Deprecated
     private static int calculateColorChange(int[] arr, String transformation) {
         Arrays.sort(arr);
         int value;
@@ -425,32 +482,32 @@ public class MeanImageMedian {
         return value;
     }
 
-    /**
-     * Gets arrays of Alpha, Red, Green, and Blue values to be used for
-     * median calculations and other transformations
-     * @param inputImages Images to be used as input
-     * @param row the current row for the pixels
-     * @param col the current column for the pixels
-     * @return a 2D array containing arrays containing each Alpha, Red, Green, and Blue pixel
-     * values for each image at a specified row and column.
-     */
-    private static int[][] getARGBArrays(Image[] inputImages, int row, int col) {
-        int[] alpha = new int[inputImages.length];
-        int[] red = new int[inputImages.length];
-        int[] green = new int[inputImages.length];
-        int[] blue = new int[inputImages.length];
-        for(int i = 0; i < inputImages.length; i++) {
-            int argb = inputImages[i].getPixelReader().getArgb(row, col);
-            alpha[i] = argbToAlpha(argb);
-            red[i] = argbToRed(argb);
-            green[i] = argbToGreen(argb);
-            blue[i] = argbToBlue(argb);
-        }
-        int[][] arr = new int[4][];
-        arr[0] = alpha;
-        arr[1] = red;
-        arr[2] = green;
-        arr[3] = blue;
-        return arr;
-    }
+//    /**
+//     * Gets arrays of Alpha, Red, Green, and Blue values to be used for
+//     * median calculations and other transformations
+//     * @param inputImages Images to be used as input
+//     * @param row the current row for the pixels
+//     * @param col the current column for the pixels
+//     * @return a 2D array containing arrays containing each Alpha, Red, Green, and Blue pixel
+//     * values for each image at a specified row and column.
+//     */
+//    private static int[][] getARGBArrays(Image[] inputImages, int row, int col) {
+//        int[] alpha = new int[inputImages.length];
+//        int[] red = new int[inputImages.length];
+//        int[] green = new int[inputImages.length];
+//        int[] blue = new int[inputImages.length];
+//        for(int i = 0; i < inputImages.length; i++) {
+//            int argb = inputImages[i].getPixelReader().getArgb(row, col);
+//            alpha[i] = argbToAlpha(argb);
+//            red[i] = argbToRed(argb);
+//            green[i] = argbToGreen(argb);
+//            blue[i] = argbToBlue(argb);
+//        }
+//        int[][] arr = new int[4][];
+//        arr[0] = alpha;
+//        arr[1] = red;
+//        arr[2] = green;
+//        arr[3] = blue;
+//        return arr;
+//    }
 }

@@ -17,10 +17,10 @@
       <HBox prefHeight="25.0" prefWidth="600.0">
          <children>
             <Button mnemonicParsing="false" onAction="#inputImages" prefHeight="25.0" prefWidth="85.0" text="Add Image" />
-            <Button mnemonicParsing="false" onAction="#calculateMeanMedian" prefHeight="25.0" prefWidth="85.0" text="Mean" />
-            <Button mnemonicParsing="false" onAction="#calculateMeanMedian" prefHeight="25.0" prefWidth="85.0" text="Median" />
-            <Button mnemonicParsing="false" onAction="#transformColorChange" prefHeight="25.0" prefWidth="85.0" text="Darker" />
-            <Button mnemonicParsing="false" onAction="#transformColorChange" prefHeight="25.0" prefWidth="85.0" text="Lighter" />
+            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="85.0" text="Mean" />
+            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="85.0" text="Median" />
+            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="85.0" text="Min" />
+            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="85.0" text="Max" />
             <Button mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="85.0" text="Save as" />
             <Button mnemonicParsing="false" onAction="#clear" prefHeight="25.0" prefWidth="85.0" text="Clear" />
          </children>

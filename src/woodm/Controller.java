@@ -107,18 +107,12 @@ public class Controller {
      * @param actionEvent an ActionEvent object used to get the source of the event
      */
     @FXML
-    private void calculateMeanMedian(ActionEvent actionEvent) {
+    private void generateFinalImage(ActionEvent actionEvent) {
         this.messageBox.setText("");
         Button button = (Button) actionEvent.getSource();
         Image[] inputImages = new Image[this.inputImages.size()];
         try {
-            if(button.getText().equals("Mean")) {
-                this.finalImage =
-                        MeanImageMedian.calculateMeanImage(this.inputImages.toArray(inputImages));
-            } else {
-                this.finalImage =
-                        MeanImageMedian.calculateMedianImage(this.inputImages.toArray(inputImages));
-            }
+            this.finalImage = MeanImageMedian.generateImage(this.inputImages.toArray(inputImages), button.getText());
         } catch(IllegalArgumentException e) {
             this.messageBox.setText(e.getMessage());
         }
@@ -135,27 +129,6 @@ public class Controller {
         VBox imagePanel = (VBox) removeButton.getParent().getParent();
         this.inputImages.remove(this.imageContainer.getChildren().indexOf(imagePanel));
         this.imageContainer.getChildren().remove(imagePanel);
-    }
-
-    /**
-     * Transforms the colors of each pixel to either darker or lighter
-     * depending on which button was pressed
-     * @param actionEvent an ActionEvent object used to get the source of the event
-     */
-    @FXML
-    private void transformColorChange(ActionEvent actionEvent) {
-        this.messageBox.setText("");
-        Image[] inputImages = new Image[this.inputImages.size()];
-        Button button = (Button) actionEvent.getSource();
-        String transformation = button.getText();
-        try {
-            this.finalImage =
-                    MeanImageMedian.transformColorChange(
-                            this.inputImages.toArray(inputImages), transformation);
-        } catch(IllegalArgumentException e) {
-            this.messageBox.setText(e.getMessage());
-        }
-        this.finalImageView.setImage(this.finalImage);
     }
 
     /**
