@@ -17,12 +17,12 @@
       <HBox prefHeight="25.0" prefWidth="600.0">
          <children>
             <Button mnemonicParsing="false" onAction="#inputImages" prefHeight="25.0" prefWidth="75.0" text="Add Image" />
-            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Mean" />
-            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Median" />
-            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Min" />
-            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Max" />
-            <Button mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Random" />
-            <Button mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="75.0" text="Save as" />
+            <Button fx:id="meanButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Mean" />
+            <Button fx:id="medianButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Median" />
+            <Button fx:id="minButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Min" />
+            <Button fx:id="maxButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Max" />
+            <Button fx:id="randomButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Random" />
+            <Button fx:id="saveButton" disable="true" mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="75.0" text="Save as" />
             <Button mnemonicParsing="false" onAction="#clear" prefHeight="25.0" prefWidth="75.0" text="Clear" />
          </children>
       </HBox>

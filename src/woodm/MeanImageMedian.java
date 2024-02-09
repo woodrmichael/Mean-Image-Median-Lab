@@ -255,7 +255,7 @@ public class MeanImageMedian {
         } else if(fileExtension.substring(1).equals(".png") ||
                 fileExtension.substring(1).equals(".jpg")) {
             ImageIO.write(SwingFXUtils.fromFXImage(image, null),
-                    fileExtension.substring(1), imagePath.toFile());
+                    fileExtension.substring(2), imagePath.toFile());
         } else if(fileExtension.equals(".msoe")) {
             if(path.length() < MINIMUM_FILE_LENGTH + 1) {
                 throw new IOException("Please ensure msoe image paths have lengths greater than 5");

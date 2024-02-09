@@ -34,6 +34,18 @@ public class Controller {
     private ImageView finalImageView;
     @FXML
     private Label messageBox;
+    @FXML
+    private Button meanButton;
+    @FXML
+    private Button medianButton;
+    @FXML
+    private Button minButton;
+    @FXML
+    private Button maxButton;
+    @FXML
+    private Button randomButton;
+    @FXML
+    private Button saveButton;
     private Image finalImage;
     private final List<Image> inputImages;
     private final FileChooser fileChooser;
@@ -80,12 +92,27 @@ public class Controller {
                             (int) image.getWidth() + " x " + (int) image.getHeight());
                     bottomContainer.getChildren().addAll(removeButton, dimensionLabel);
                     imagePanel.getChildren().addAll(imageView, bottomContainer);
+                    if(this.inputImages.size() >= 2) {
+                        setDisableTransformationButtons(false);
+                    }
                 }
             }
         } catch(IOException | IllegalArgumentException e) {
             this.alert.setContentText(e.getMessage());
             this.alert.showAndWait();
         }
+    }
+
+    /**
+     * Enables the transformation buttons to be able to be pressed.
+     * @param b true if the buttons should be disabled, false if the buttons should be enabled
+     */
+    private void setDisableTransformationButtons(boolean b) {
+        this.meanButton.setDisable(b);
+        this.medianButton.setDisable(b);
+        this.minButton.setDisable(b);
+        this.maxButton.setDisable(b);
+        this.randomButton.setDisable(b);
     }
 
     /**
@@ -126,6 +153,7 @@ public class Controller {
             this.alert.showAndWait();
         }
         this.finalImageView.setImage(this.finalImage);
+        this.saveButton.setDisable(false);
     }
 
     /**
@@ -138,6 +166,9 @@ public class Controller {
         VBox imagePanel = (VBox) removeButton.getParent().getParent();
         this.inputImages.remove(this.imageContainer.getChildren().indexOf(imagePanel));
         this.imageContainer.getChildren().remove(imagePanel);
+        if(this.inputImages.size() < 2) {
+            setDisableTransformationButtons(true);
+        }
     }
 
     /**
@@ -150,5 +181,7 @@ public class Controller {
         this.inputImages.clear();
         this.finalImageView.setImage(null);
         this.finalImage = null;
+        setDisableTransformationButtons(true);
+        this.saveButton.setDisable(true);
     }
 }
