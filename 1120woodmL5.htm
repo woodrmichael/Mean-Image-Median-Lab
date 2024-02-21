@@ -1,0 +1,1080 @@
+<meta charset="utf-8" lang="en">            <style class="fallback">body{visibility:hidden;}</style>
+<!---
+
+
+                       DOWNLOAD AND OPEN IN A BROWSER
+                          TO SEE PROPER FORMATTING
+
+
+--->
+**Lab 5: Mean Image Median**
+    Username: woodm
+    Date: 02-20-2024
+    Course: CSC1120
+    Submitted to: Dr. Chris Taylor
+
+
+!!! METRIcS: Instructor Feedback
+    | Earned | Possible | Criteria                                         |
+    | ------ | -------- | ------------------------------------------------ |
+    |   60   |    60    | Technical quality (see point deductions in code) |
+    |   15   |    15    | Intermediate commits                             |
+    |    5   |     5    | Exceptions handled with `Alert` dialog           |
+    |   10   |    10    | Coding standard compliance and program clarity   |
+    |   10   |    10    | Following submission instructions                |
+
+    [Nicely Done](https://msoe.us/taylor/Nice)
+
+# Controller.java
+
+~~~~ Java
+/*
+ * Course: CSC1120A 121
+ * Spring 2023
+ * Lab 3 - Mean Image Median
+ * Name: Michael Wood
+ * Created: 2/1/2024
+ */
+package woodm;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * The Controller class is used to control the layout.fxml GUI
+ */
+public class Controller {
+    @FXML
+    private HBox imageContainer;
+    @FXML
+    private ImageView finalImageView;
+    @FXML
+    private Label messageBox;
+    @FXML
+    private Button meanButton;
+    @FXML
+    private Button medianButton;
+    @FXML
+    private Button minButton;
+    @FXML
+    private Button maxButton;
+    @FXML
+    private Button randomButton;
+    @FXML
+    private Button saveButton;
+    private Image finalImage;
+    private final List&lt&#xFEFF;Image> inputImages;
+    private final FileChooser fileChooser;
+    private final Alert alert;
+
+    /**
+     * Creates a new Controller with a FileChooser that has ExtensionFilters
+     * and an ArrayList of Images
+     */
+    public Controller() {
+        this.fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Image Files", "*.png", "*.jpg", "*.ppm", "*.msoe"));
+        this.inputImages = new ArrayList&lt&#xFEFF;>();
+        this.alert = new Alert(Alert.AlertType.WARNING);
+    }
+
+    /**
+     * Adds the images the user wants to the scroll pane at the top of the window
+     * with a remove button below to remove the image if needed
+     */
+    @FXML
+    private void inputImages() {
+        this.messageBox.setText("");
+        final int inputImageWidth = 240;
+        final int inputImageHeight = 170;
+        try {
+            List&lt&#xFEFF;File> imageFiles = this.fileChooser.showOpenMultipleDialog(null);
+            if(imageFiles != null) {
+                for (File imageFile : imageFiles) {
+                    Path imagePath = imageFile.toPath();
+                    Image image = MeanImageMedian.readImage(imagePath);
+                    this.inputImages.addFirst(image);
+                    VBox imagePanel = new VBox();
+                    this.imageContainer.getChildren().addFirst(imagePanel);
+                    ImageView imageView = new ImageView(image);
+                    imageView.setFitWidth(inputImageWidth);
+                    imageView.setFitHeight(inputImageHeight);
+                    HBox bottomContainer = new HBox();
+                    Button removeButton = new Button("Remove");
+                    removeButton.setOnAction(this::removeImage);
+                    Label dimensionLabel = new Label(imagePath.getFileName() + "\nDimensions: " +
+                            (int) image.getWidth() + " x " + (int) image.getHeight());
+                    bottomContainer.getChildren().addAll(removeButton, dimensionLabel);
+                    imagePanel.getChildren().addAll(imageView, bottomContainer);
+                    if(this.inputImages.size() >= 2) {
+                        setDisableTransformationButtons(false);
+                    }
+                }
+            }
+        } catch(IOException | IllegalArgumentException e) {
+            this.alert.setContentText(e.getMessage());
+            this.alert.showAndWait();
+        }
+    }
+
+    /**
+     * Enables the transformation buttons to be able to be pressed.
+     * @param b true if the buttons should be disabled, false if the buttons should be enabled
+     */
+    private void setDisableTransformationButtons(boolean b) {
+        this.meanButton.setDisable(b);
+        this.medianButton.setDisable(b);
+        this.minButton.setDisable(b);
+        this.maxButton.setDisable(b);
+        this.randomButton.setDisable(b);
+    }
+
+    /**
+     * Saves the image to a file at the users requested location
+     */
+    @FXML
+    private void save() {
+        this.messageBox.setText("");
+        try {
+            File imageFile = this.fileChooser.showSaveDialog(null);
+            if(imageFile != null) {
+                Path imagePath = imageFile.toPath();
+                MeanImageMedian.writeImage(imagePath, this.finalImage);
+                this.messageBox.setText(
+                        "Successfully saved file to: " + imagePath.toAbsolutePath());
+            }
+        } catch(IOException | IllegalArgumentException e) {
+            this.alert.setContentText(e.getMessage());
+            this.alert.showAndWait();
+        }
+    }
+
+    /**
+     * Calculates the final image based on which button is pressed to get the transformation type
+     * Displays this image at the bottom of the screen.
+     * @param actionEvent an ActionEvent object used to get the source of the event
+     */
+    @FXML
+    private void generateFinalImage(ActionEvent actionEvent) {
+        this.messageBox.setText("");
+        Button button = (Button) actionEvent.getSource();
+        Image[] inputImages = new Image[this.inputImages.size()];
+        try {
+            this.finalImage = MeanImageMedian.generateImage(
+                    this.inputImages.toArray(inputImages), button.getText());
+        } catch(IllegalArgumentException e) {
+            this.alert.setContentText(e.getMessage());
+            this.alert.showAndWait();
+        }
+        this.finalImageView.setImage(this.finalImage);
+        this.saveButton.setDisable(false);
+    }
+
+    /**
+     * Removes the desired image from the input images
+     * @param actionEvent an ActionEvent object used to get the source of the event
+     */
+    private void removeImage(ActionEvent actionEvent) {
+        this.messageBox.setText("");
+        Button removeButton = (Button) actionEvent.getSource();
+        VBox imagePanel = (VBox) removeButton.getParent().getParent();
+        this.inputImages.remove(this.imageContainer.getChildren().indexOf(imagePanel));
+        this.imageContainer.getChildren().remove(imagePanel);
+        if(this.inputImages.size() &lt&#xFEFF; 2) {
+            setDisableTransformationButtons(true);
+        }
+    }
+
+    /**
+     * Clears all the text fields, input images, and the final image displayed at the bottom
+     */
+    @FXML
+    private void clear() {
+        this.messageBox.setText("");
+        this.imageContainer.getChildren().clear();
+        this.inputImages.clear();
+        this.finalImageView.setImage(null);
+        this.finalImage = null;
+        setDisableTransformationButtons(true);
+        this.saveButton.setDisable(true);
+    }
+}
+
+~~~~
+
+# Lab3.java
+
+~~~~ Java
+/*
+ * Course: CSC1120A 121
+ * Spring 2023
+ * Lab 3 - Mean Image Median
+ * Name: Michael Wood
+ * Created: 1/31/2024
+ */
+package woodm;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
+/**
+ * Creates an interactive GUI to calculate the mean or median on a set of images
+ */
+public class Lab3 extends Application {
+    @Override
+    public void start(Stage stage) {
+        try {
+            Parent pane = FXMLLoader.load(getClass().getResource("layout.fxml"));
+            stage.setScene(new Scene(pane));
+            stage.setTitle("Mean Image Median");
+            stage.setResizable(false);
+            stage.show();
+        } catch (IOException e) {
+            System.out.println("There was an error reading the FXML file, please try again");
+        }
+    }
+
+    public static void main(String[] args) {
+        Application.launch(args);
+    }
+}
+
+~~~~
+
+# Launcher.java
+
+~~~~ Java
+/*
+ * Course: CSC1120A 121
+ * Spring 2023
+ * Lab 3 - Mean Image Median
+ * Name: Michael Wood
+ * Updated: 2/1/2024
+ */
+package woodm;
+
+/**
+ * Used to run the Jar file
+ */
+public class Launcher {
+    public static void main(String[] args) {
+        Lab3.main(args);
+    }
+}
+
+~~~~
+
+# MeanImageMedian.java
+
+~~~~ Java
+/*
+ * Course: CSC1120A 121
+ * Spring 2023
+ * Lab 1 - Mean Image Median Lab
+ * Name: Michael Wood
+ * Created: 1/18/2024
+ */
+package woodm;
+
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.embed.swing.SwingFXUtils;
+
+import javax.imageio.ImageIO;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.Scanner;
+
+/**
+ * The MeanImageMedian class offers multiple methods to generate mean and median images
+ * of 2 or more images.
+ */
+public class MeanImageMedian {
+    
+    /**
+     * Maximum color value
+     */
+    public static final int MAX_COLOR = 255;
+    private static final int MINIMUM_FILE_LENGTH = 5;
+    private static final int MSOE_FILE_FIRST_LINE = 1297305413;
+
+    /**
+     * returns an image where the specified operation is applied
+     * to the input images to determine the output image.
+     * @param images an array of input images used to generate a final image
+     * @param operation either 'Mean', 'Median', 'Min', 'Max', or 'Random
+     * @return a new image that has the given operation applied to the set of input images
+     *
+     * @throws IllegalArgumentException Thrown if there is less than 2 input images,
+     * any of the input images are null, or any of the input images have different dimensions or
+     * if the operation is not a valid operation.
+     */
+    public static Image generateImage(Image[] images, String operation) {
+        checkInputImages(images);
+        return switch (operation) {
+            case "Mean" -> applyTransformation(images, MeanImageMedian::calculateMean);
+            case "Median" -> applyTransformation(images, MeanImageMedian::calculateMedian);
+            case "Min" -> applyTransformation(images, MeanImageMedian::calculateMin);
+            case "Max" -> applyTransformation(images, MeanImageMedian::calculateMax);
+            case "Random" -> applyTransformation(images, MeanImageMedian::calculateRandom);
+            default -> throw new IllegalArgumentException("Invalid Operation, Please try again");
+~~~~
+!!! BONUS: Nicely done
+    Good work.
+
+    ~~~~ Java highlight
+        Transform transform = switch (operation) {
+            case "Mean" -> MeanImageMedian::calculateMean;
+            case "Median" -> MeanImageMedian::calculateMedian;
+            case "Min" -> MeanImageMedian::calculateMin;
+            case "Max" -> MeanImageMedian::calculateMax;
+            case "Random" -> MeanImageMedian::calculateRandom;
+            default -> throw new IllegalArgumentException("Invalid Operation, Please try again");
+        };
+        return applyTransformation(images, transform);
+    ~~~~
+
+
+~~~~ Java
+        };
+    }
+
+    /**
+     * returns an image that is generated by applying
+     * the transformation to each component of each pixel in the images.
+     * @param images the array of images
+     * @param transformation the transformation to be applied to
+     * @return An image with the transformation applied to it
+     */
+~~~~ Java highlight
+    private static Image applyTransformation(Image[] images, Transform transformation) {
+~~~~
+!!! MINUS: -1 Must match required interface
+    One critical characteristic of successful software developers is that
+    they are able to write code that matches a required interface
+    **exactly**. Since software is often written by teams, any variance
+    from the required interface results in additional work to fixs the
+    code so that it can interoperate with code written by others on the
+    team.
+
+    This method was specified to be called `applyTransform()`.
+
+~~~~ Java
+        int width = (int) images[0].getWidth();
+        int height = (int) images[0].getHeight();
+        WritableImage image = new WritableImage(width, height);
+        for(int row = 0; row &lt&#xFEFF; width; row++) {
+            for (int col = 0; col &lt&#xFEFF; height; col++) {
+                int[] alpha = new int[images.length];
+                int[] red = new int[images.length];
+                int[] green = new int[images.length];
+                int[] blue = new int[images.length];
+                for(int i = 0; i &lt&#xFEFF; images.length; i++) {
+                    int argb = images[i].getPixelReader().getArgb(row, col);
+                    alpha[i] = argbToAlpha(argb);
+                    red[i] = argbToRed(argb);
+                    green[i] = argbToGreen(argb);
+                    blue[i] = argbToBlue(argb);
+                }
+                int a = transformation.apply(alpha);
+                int r = transformation.apply(red);
+                int g = transformation.apply(green);
+                int b = transformation.apply(blue);
+                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
+            }
+        }
+        return image;
+    }
+
+
+    /**
+     * Calculates the median of all the images passed to the method.
+     * &lt&#xFEFF;br />
+     * Each pixel in the output image consists is calculated as the median
+     * red, green, and blue components of the input images at the same location.
+     * @param inputImages Images to be used as input
+     * @return An image containing the median color value for each pixel in the input images
+     *
+     * @throws IllegalArgumentException Thrown if inputImages or any element of inputImages is null,
+     * the length of the array is less than two, or  if any of the input images differ in size.
+     * @deprecated use {@link #generateImage(Image[], String)} instead
+     */
+    @Deprecated
+    public static Image calculateMedianImage(Image[] inputImages) {
+        checkInputImages(inputImages);
+        int width = (int) inputImages[0].getWidth();
+        int height = (int) inputImages[0].getHeight();
+        WritableImage image = new WritableImage(width, height);
+        for(int row = 0; row &lt&#xFEFF; width; row++) {
+            for(int col = 0; col &lt&#xFEFF; height; col++) {
+                int[][] arr = getARGBArrays(inputImages, row, col);
+                int a = calculateMedian(arr[0]);
+                int r = calculateMedian(arr[1]);
+                int g = calculateMedian(arr[2]);
+                int b = calculateMedian(arr[3]);
+                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
+            }
+        }
+        return image;
+    }
+
+    /**
+     * Calculates the mean of all the images passed to the method.
+     * &lt&#xFEFF;br />
+     * Each pixel in the output image consists is calculated as the average of the
+     * red, green, and blue components of the input images at the same location.
+     * @param inputImages Images to be used as input
+     * @return An image containing the mean color value for each pixel in the input images
+     *
+     * @throws IllegalArgumentException Thrown if inputImages or any element of inputImages is null,
+     * the length of the array is less than two, or  if any of the input images differ in size.
+     * @deprecated use {@link #generateImage(Image[], String)} instead
+     */
+    @Deprecated
+    public static Image calculateMeanImage(Image[] inputImages) {
+        checkInputImages(inputImages);
+        int width = (int) inputImages[0].getWidth();
+        int height = (int) inputImages[0].getHeight();
+        WritableImage image = new WritableImage(width, height);
+        for(int row = 0; row &lt&#xFEFF; width; row++) {
+            for(int col = 0; col &lt&#xFEFF; height; col++) {
+                int a = 0;
+                int r = 0;
+                int g = 0;
+                int b = 0;
+                for (Image inputImage : inputImages) {
+                    int argb = inputImage.getPixelReader().getArgb(row, col);
+                    a += argbToAlpha(argb);
+                    r += argbToRed(argb);
+                    g += argbToGreen(argb);
+                    b += argbToBlue(argb);
+                }
+                a = (int) Math.round(((double) a) / inputImages.length);
+                r = (int) Math.round(((double) r) / inputImages.length);
+                g = (int) Math.round(((double) g) / inputImages.length);
+                b = (int) Math.round(((double) b) / inputImages.length);
+                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
+            }
+        }
+        return image;
+    }
+    /**
+     * Calculates the darker or lighter image of all the images passed to the method.
+     * &lt&#xFEFF;br />
+     * Each pixel in the output image consists is calculated as either the lighter or darker
+     * red, green, and blue components of the input images at the same location.
+     * @param inputImages Images to be used as input
+     * @param transformation the type of transformation, either 'Darker' or 'Lighter'
+     * @return An image containing the lighter or darker value for each pixel in the input images
+     *
+     * @throws IllegalArgumentException Thrown if inputImages or any element of inputImages is null,
+     * the length of the array is less than two, or  if any of the input images differ in size.
+     * @deprecated use {@link #generateImage(Image[], String)} instead
+     */
+    @Deprecated
+    public static Image transformColorChange(Image[] inputImages, String transformation) {
+        checkInputImages(inputImages);
+        int width = (int) inputImages[0].getWidth();
+        int height = (int) inputImages[0].getHeight();
+        WritableImage image = new WritableImage(width, height);
+        for(int row = 0; row &lt&#xFEFF; width; row++) {
+            for(int col = 0; col &lt&#xFEFF; height; col++) {
+                int[][] arr = getARGBArrays(inputImages, row, col);
+                int a = calculateColorChange(arr[0], transformation);
+                int r = calculateColorChange(arr[1], transformation);
+                int g = calculateColorChange(arr[2], transformation);
+                int b = calculateColorChange(arr[3], transformation);
+                image.getPixelWriter().setArgb(row, col, argbToInt(a, r, g, b));
+            }
+        }
+        return image;
+    }
+
+    /**
+     * Reads an image in PPM, PNG, or JPG format
+     * @param imagePath the path to the image to be read
+     * @return An image object containing the image read from the file.
+     *
+     * @throws IllegalArgumentException Thrown if imagePath is null.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
+     */
+    public static Image readImage(Path imagePath) throws IOException {
+        checkImagePath(imagePath);
+        String path = imagePath.toString();
+        if(path.length() &lt&#xFEFF; MINIMUM_FILE_LENGTH) {
+            throw new IOException("Please ensure the image paths have lengths greater than 4");
+        }
+        String fileExtension = path.substring(path.length() - MINIMUM_FILE_LENGTH);
+        Image image;
+        if(fileExtension.substring(1).equals(".ppm")) {
+            image = readPPMImage(imagePath);
+        } else if(fileExtension.substring(1).equals(".png") ||
+                fileExtension.substring(1).equals(".jpg")) {
+            image = new Image(new FileInputStream(imagePath.toFile()));
+        } else if(fileExtension.equals(".msoe")) {
+            if(path.length() &lt&#xFEFF; MINIMUM_FILE_LENGTH + 1) {
+                throw new IOException("Please ensure msoe image paths have lengths greater than 5");
+            }
+            image = readMSOEImage(imagePath);
+        } else {
+            throw new IllegalArgumentException(
+                    "Please ensure the image path has extension '.ppm', '.png', 'jpg', or 'msoe'");
+        }
+        return image;
+    }
+
+    /**
+     * Writes an image in PPM, PNG, JPG, or MSOE format
+     * @param imagePath the path to where the file should be written
+     * @param image the image containing the pixels to be written to the file
+     *
+     * @throws IllegalArgumentException Thrown if imagePath is null.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
+     */
+    public static void writeImage(Path imagePath, Image image) throws IOException {
+        checkImagePath(imagePath);
+        String path = imagePath.toString();
+        if(path.length() &lt&#xFEFF; MINIMUM_FILE_LENGTH) {
+            throw new IOException("Please ensure the image paths have lengths greater than 4");
+        }
+        if(image == null) {
+            throw new IllegalArgumentException("Please ensure the image is not null");
+        }
+        String fileExtension = path.substring(path.length() - MINIMUM_FILE_LENGTH);
+        if(fileExtension.substring(1).equals(".ppm")) {
+            writePPMImage(imagePath, image);
+        } else if(fileExtension.substring(1).equals(".png") ||
+                fileExtension.substring(1).equals(".jpg")) {
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null),
+                    fileExtension.substring(2), imagePath.toFile());
+        } else if(fileExtension.equals(".msoe")) {
+            if(path.length() &lt&#xFEFF; MINIMUM_FILE_LENGTH + 1) {
+                throw new IOException("Please ensure msoe image paths have lengths greater than 5");
+            }
+            writeMSOEImage(imagePath, image);
+        } else {
+            throw new IllegalArgumentException(
+                    "Please ensure the image path has extension '.ppm', '.png', 'jpg', or 'msoe'");
+        }
+    }
+
+    /**
+     * Reads an image in PPM format. The method only supports the plain PPM (P3)
+     * format with 24-bit color and does not support comments in the image file.
+     * @param imagePath the path to the image to be read
+     * @return An image object containing the image read from the file.
+     *
+     * @throws IllegalArgumentException Thrown if imagePath is null.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
+     */
+    private static Image readPPMImage(Path imagePath) throws IOException {
+        checkImagePath(imagePath);
+        if(!imagePath.toString().endsWith(".ppm")) {
+            throw new IOException("Please ensure the image path has extension '.ppm'");
+        }
+        try (Scanner reader = new Scanner(imagePath)) {
+            if(!reader.next().equals("P3")) {
+                throw new IOException(
+                        "Invalid image format. The first non-comment line is not 'P3'");
+            }
+            int width = reader.nextInt();
+            int height = reader.nextInt();
+            WritableImage image = new WritableImage(width, height);
+            if(reader.nextInt() != MAX_COLOR) {
+                throw new IOException(
+                        "Invalid image format. The max value was not equal to " + MAX_COLOR);
+            }
+            for(int col = 0; col &lt&#xFEFF; height; col++) {
+                for(int row = 0; row &lt&#xFEFF; width; row++) {
+                    int r = reader.nextInt();
+                    int g = reader.nextInt();
+                    int b = reader.nextInt();
+                    int argb = argbToInt(MAX_COLOR, r, g, b);
+                    image.getPixelWriter().setArgb(row, col, argb);
+                }
+            }
+            return image;
+        }
+    }
+
+    /**
+     * Writes an image in PPM format. The method only supports the plain PPM (P3)
+     * format with 24-bit color and does not support comments in the image file.
+     * @param imagePath the path to where the file should be written
+     * @param image the image containing the pixels to be written to the file
+     *
+     * @throws IllegalArgumentException Thrown if imagePath is null.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
+     */
+    private static void writePPMImage(Path imagePath, Image image) throws IOException {
+        checkImagePath(imagePath);
+        if(!imagePath.toString().endsWith(".ppm")) {
+            throw new IOException("Please ensure the image path has extension '.ppm'");
+        }
+        try (PrintWriter writer = new PrintWriter(imagePath.toFile())) {
+            int width = (int) image.getWidth();
+            int height = (int) image.getHeight();
+            writer.println("P3");
+            writer.println(width + " " + height);
+            writer.println(MAX_COLOR);
+            for(int col = 0; col &lt&#xFEFF; height; col++) {
+                for(int row = 0; row &lt&#xFEFF; width; row++) {
+                    int argb = image.getPixelReader().getArgb(row, col);
+                    int r = argbToRed(argb);
+                    int g = argbToGreen(argb);
+                    int b = argbToBlue(argb);
+                    writer.format("%3d %3d %3d   ", r, g, b);
+                }
+                writer.println();
+            }
+        }
+    }
+
+    /**
+     * Reads in an image in MSOE format.
+     * @param imagePath the path to the image to be read
+     * @return An image object containing the image read from the file.
+     *
+     * @throws IllegalArgumentException Thrown if imagePath is null.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
+     */
+    private static Image readMSOEImage(Path imagePath) throws IOException {
+        checkImagePath(imagePath);
+        if(!imagePath.toString().endsWith(".msoe")) {
+            throw new IOException("Please ensure the image path has extension '.msoe'");
+        }
+        try (DataInputStream reader = new DataInputStream(Files.newInputStream(imagePath))) {
+            if(reader.readInt() != MSOE_FILE_FIRST_LINE) {
+                throw new IOException(
+                        "Invalid image format. The first integer must be " + MSOE_FILE_FIRST_LINE);
+            }
+            int width = reader.readInt();
+            int height = reader.readInt();
+            WritableImage image = new WritableImage(width, height);
+            for(int col = 0; col &lt&#xFEFF; height; col++) {
+                for(int row = 0; row &lt&#xFEFF; width; row++) {
+                    int argb = reader.readInt();
+                    image.getPixelWriter().setArgb(row, col, argb);
+                }
+            }
+            return image;
+        }
+    }
+
+    /**
+     * Writes an image MSOE format.
+     * @param imagePath the path to where the file should be written
+     * @param image the image containing the pixels to be written to the file
+     *
+     * @throws IllegalArgumentException Thrown if imagePath is null.
+     * @throws IOException Thrown if the image format is invalid or
+     * there was trouble reading the file.
+     */
+    private static void writeMSOEImage(Path imagePath, Image image) throws IOException {
+        checkImagePath(imagePath);
+        if(!imagePath.toString().endsWith(".msoe")) {
+            throw new IOException("Please ensure the image path has extension '.msoe'");
+        }
+        try(DataOutputStream writer = new DataOutputStream(Files.newOutputStream(imagePath))) {
+            int width = (int) image.getWidth();
+            int height = (int) image.getHeight();
+            writer.writeInt(MSOE_FILE_FIRST_LINE);
+            writer.writeInt(width);
+            writer.writeInt(height);
+            for(int col = 0; col &lt&#xFEFF; height; col++) {
+                for(int row = 0; row &lt&#xFEFF; width; row++) {
+                    int argb = image.getPixelReader().getArgb(row, col);
+                    writer.writeInt(argb);
+                }
+            }
+        }
+    }
+
+    /**
+     * Extract 8-bit Alpha value of color from 32-bit representation of the color in the format
+     * described by the INT_ARGB PixelFormat type.
+     * @param argb the 32-bit representation of the color
+     * @return the 8-bit Alpha value of the color.
+     */
+    private static int argbToAlpha(int argb) {
+        final int bitShift = 24;
+        return argb >> bitShift;
+    }
+
+    /**
+     * Extract 8-bit Red value of color from 32-bit representation of the color in the format
+     * described by the INT_ARGB PixelFormat type.
+     * @param argb the 32-bit representation of the color
+     * @return the 8-bit Red value of the color.
+     */
+    private static int argbToRed(int argb) {
+        final int bitShift = 16;
+        final int mask = 0xff;
+        return (argb >> bitShift) & mask;
+    }
+
+    /**
+     * Extract 8-bit Green value of color from 32-bit representation of the color in the format
+     * described by the INT_ARGB PixelFormat type.
+     * @param argb the 32-bit representation of the color
+     * @return the 8-bit Green value of the color.
+     */
+    private static int argbToGreen(int argb) {
+        final int bitShift = 8;
+        final int mask = 0xff;
+        return (argb >> bitShift) & mask;
+    }
+
+    /**
+     * Extract 8-bit Blue value of color from 32-bit representation of the color in the format
+     * described by the INT_ARGB PixelFormat type.
+     * @param argb the 32-bit representation of the color
+     * @return the 8-bit Blue value of the color.
+     */
+    private static int argbToBlue(int argb) {
+        final int bitShift = 0;
+        final int mask = 0xff;
+        return (argb >> bitShift) & mask;
+    }
+
+    /**
+     * Converts argb components into a single int that represents the argb value of a color.
+     * @param a the 8-bit Alpha channel value of the color
+     * @param r the 8-bit Red channel value of the color
+     * @param g the 8-bit Green channel value of the color
+     * @param b the 8-bit Blue channel value of the color
+     * @return a 32-bit representation of the color in the format
+     * described by the INT_ARGB PixelFormat type.
+     */
+    private static int argbToInt(int a, int r, int g, int b) {
+        final int alphaShift = 24;
+        final int redShift = 16;
+        final int greenShift = 8;
+        final int mask = 0xff;
+        return a &lt&#xFEFF;&lt&#xFEFF; alphaShift | ((r & mask) &lt&#xFEFF;&lt&#xFEFF; redShift) | (g & mask) &lt&#xFEFF;&lt&#xFEFF; greenShift | b & mask;
+    }
+
+    /**
+     * Determines if the list of inputImages is valid
+     * The list is valid if no elements in the list are null, the size of the list
+     * is greater than 2, and all elements have the same widths and heights as other elements.
+     * @param inputImages the list to validate
+     * @throws IllegalArgumentException Thrown if there is less than 2 input images,
+     * any of the input images are null, or any of the input images have different dimensions
+     */
+    private static void checkInputImages(Image[] inputImages) {
+        StringBuilder message = new StringBuilder();
+        boolean flag = false;
+        if(inputImages.length &lt&#xFEFF; 2) {
+            flag = true;
+            message.append("Please ensure there are at least 2 input images. ");
+        }
+        for (Image inputImage : inputImages) {
+            if (inputImage == null) {
+                if(!flag) {
+                    message.append("Please ensure that none of the input images are null. ");
+                }
+                flag = true;
+            }
+        }
+        if(!flag) {
+            int width = (int) inputImages[0].getWidth();
+            int height = (int) inputImages[0].getHeight();
+            for(int i = 1; i &lt&#xFEFF; inputImages.length; i++) {
+                if(width != (int) inputImages[i].getWidth() ||
+                        height != (int) inputImages[i].getHeight()) {
+                    if(!flag) {
+                        message.append(
+                                "Please ensure that all input images have the same dimensions");
+                    }
+                    flag = true;
+                }
+            }
+        }
+        if(flag) {
+            throw new IllegalArgumentException(message.toString());
+        }
+    }
+
+    /**
+     * Sorts the given array and returns the median
+     * @param arr the given array
+     * @return the median value of the array
+     */
+    private static int calculateMedian(int[] arr) {
+        Arrays.sort(arr);
+        int len = arr.length;
+        int median;
+        if(len % 2 == 1) {
+            median = arr[len / 2];
+        } else {
+            median = (int) Math.round((arr[len / 2] + arr[len / 2 - 1]) / 2.0);
+        }
+        return median;
+    }
+
+    /**
+     * Calculates the mean of the given array
+     * @param arr the given array
+     * @return the mean value of the array
+     */
+    private static int calculateMean(int[] arr) {
+        double sum = 0;
+        for (int val : arr) {
+            sum += val;
+        }
+        return (int) Math.round(sum / arr.length);
+    }
+
+    /**
+     * Calculates the maximum value of a given array
+     * @param arr the given array
+     * @return the maximum value in the array
+     */
+    private static int calculateMax(int[] arr) {
+        Arrays.sort(arr);
+        return arr[arr.length - 1];
+    }
+
+    /**
+     * Calculates the minimum value of a given array
+     * @param arr the given array
+     * @return the minimum value in the array
+     */
+    private static int calculateMin(int[] arr) {
+        Arrays.sort(arr);
+        return arr[0];
+    }
+
+    /**
+     * Returns a random value in the given array
+     * @param arr the given array
+     * @return a random value from the array
+     */
+    private static int calculateRandom(int[] arr) {
+        return arr[new Random().nextInt(arr.length)];
+    }
+
+    /**
+     * Checks whether the image path is null
+     * @param imagePath the image path to be checked
+     * @throws IllegalArgumentException thrown if the image path is null
+     */
+    private static void checkImagePath(Path imagePath) {
+        if(imagePath == null) {
+            throw new IllegalArgumentException("Please ensure the image path is not null");
+        }
+    }
+
+    /**
+     * Calculates the darker or lighter pixel depending on the type of transformation
+     * @param arr the array of pixels
+     * @param transformation either 'Darker' or 'Lighter'
+     * @return a pixel value for the darker or lighter pixel
+     * @deprecated use {@link #applyTransformation(Image[], Transform)} instead
+     */
+    @Deprecated
+    private static int calculateColorChange(int[] arr, String transformation) {
+        Arrays.sort(arr);
+        int value;
+        if(transformation.equals("Darker")) {
+            value = arr[0];
+        } else {
+            value = arr[arr.length - 1];
+        }
+        return value;
+    }
+
+    /**
+     * Gets arrays of Alpha, Red, Green, and Blue values to be used for
+     * median calculations and other transformations
+     * @param inputImages Images to be used as input
+     * @param row the current row for the pixels
+     * @param col the current column for the pixels
+     * @return a 2D array containing arrays containing each Alpha, Red, Green, and Blue pixel
+     * values for each image at a specified row and column.
+     * @deprecated use {@link #applyTransformation(Image[], Transform)} instead
+     */
+    @Deprecated
+    private static int[][] getARGBArrays(Image[] inputImages, int row, int col) {
+        int[] alpha = new int[inputImages.length];
+        int[] red = new int[inputImages.length];
+        int[] green = new int[inputImages.length];
+        int[] blue = new int[inputImages.length];
+        for(int i = 0; i &lt&#xFEFF; inputImages.length; i++) {
+            int argb = inputImages[i].getPixelReader().getArgb(row, col);
+            alpha[i] = argbToAlpha(argb);
+            red[i] = argbToRed(argb);
+            green[i] = argbToGreen(argb);
+            blue[i] = argbToBlue(argb);
+        }
+        int[][] arr = new int[4][];
+        arr[0] = alpha;
+        arr[1] = red;
+        arr[2] = green;
+        arr[3] = blue;
+        return arr;
+    }
+}
+
+~~~~
+
+# Transform.java
+
+~~~~ Java
+/*
+ * Course: CSC1120A 121
+ * Spring 2023
+ * Lab 5 - Mean Image Median Lab
+ * Name: Michael Wood
+ * Created: 2/8/2024
+ */
+package woodm;
+
+/**
+ * A Functional Interface used to apply a transformation to an array of integers
+ */
+@FunctionalInterface
+public interface Transform {
+    /**
+     * Applies a transformation to an array of integers
+     * @param arr the array of integers to do the transformation on
+     * @return the integer value of the transformation that had it applied to
+     */
+    int apply(int[] arr);
+}
+
+~~~~
+
+# layout.fxml
+
+~~~~ XML
+&lt&#xFEFF;?xml version="1.0" encoding="UTF-8"?>
+
+&lt&#xFEFF;?import javafx.scene.control.Button?>
+&lt&#xFEFF;?import javafx.scene.control.Label?>
+&lt&#xFEFF;?import javafx.scene.control.ScrollPane?>
+&lt&#xFEFF;?import javafx.scene.image.ImageView?>
+&lt&#xFEFF;?import javafx.scene.layout.HBox?>
+&lt&#xFEFF;?import javafx.scene.layout.VBox?>
+
+&lt&#xFEFF;VBox prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="woodm.Controller">
+   &lt&#xFEFF;children>
+      &lt&#xFEFF;ScrollPane hbarPolicy="ALWAYS" prefHeight="225.0" prefWidth="600.0" vbarPolicy="NEVER">
+         &lt&#xFEFF;content>
+            &lt&#xFEFF;HBox fx:id="imageContainer" prefHeight="225.0" prefWidth="600.0" />
+         &lt&#xFEFF;/content>
+      &lt&#xFEFF;/ScrollPane>
+      &lt&#xFEFF;HBox prefHeight="25.0" prefWidth="600.0">
+         &lt&#xFEFF;children>
+            &lt&#xFEFF;Button mnemonicParsing="false" onAction="#inputImages" prefHeight="25.0" prefWidth="75.0" text="Add Image" />
+            &lt&#xFEFF;Button fx:id="meanButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Mean" />
+            &lt&#xFEFF;Button fx:id="medianButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Median" />
+            &lt&#xFEFF;Button fx:id="minButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Min" />
+            &lt&#xFEFF;Button fx:id="maxButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Max" />
+            &lt&#xFEFF;Button fx:id="randomButton" disable="true" mnemonicParsing="false" onAction="#generateFinalImage" prefHeight="25.0" prefWidth="75.0" text="Random" />
+            &lt&#xFEFF;Button fx:id="saveButton" disable="true" mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="75.0" text="Save as" />
+            &lt&#xFEFF;Button mnemonicParsing="false" onAction="#clear" prefHeight="25.0" prefWidth="75.0" text="Clear" />
+         &lt&#xFEFF;/children>
+      &lt&#xFEFF;/HBox>
+      &lt&#xFEFF;HBox alignment="TOP_CENTER" prefHeight="201.0" prefWidth="552.0">
+         &lt&#xFEFF;children>
+            &lt&#xFEFF;ImageView fx:id="finalImageView" fitHeight="300.0" fitWidth="500.0" pickOnBounds="true" preserveRatio="true" />
+         &lt&#xFEFF;/children>
+      &lt&#xFEFF;/HBox>
+      &lt&#xFEFF;Label fx:id="messageBox" alignment="CENTER" prefHeight="50.0" prefWidth="600.0" />
+   &lt&#xFEFF;/children>
+&lt&#xFEFF;/VBox>
+
+~~~~
+
+# Commit Log
+
+~~~~
+Thu Jan 18 00:12 "Rename-package" # woodm@msoe.edu
+Thu Jan 18 08:41 "User-Input" # woodm@msoe.edu
+Thu Jan 18 08:44 "User-Input" # woodm@msoe.edu
+Thu Jan 18 09:49 "Read-PPM-Image" # woodm@msoe.edu
+Thu Jan 18 09:50 "Read-PPM-Image" # woodm@msoe.edu
+Sun Jan 21 12:11 "Read-PPM-Image" # woodm@msoe.edu
+Sun Jan 21 13:20 "Write-PPM-Image" # woodm@msoe.edu
+Tue Jan 23 16:34 "Lab-Completed" # woodm@msoe.edu
+Tue Jan 23 16:34 "Lab-Completed" # 146870432+woodrmichael@users.noreply.github.com
+Tue Jan 23 16:37 "Lab-Completed" # 146870432+woodrmichael@users.noreply.github.com
+Tue Jan 23 16:38 "Lab-Completed" # 146870432+woodrmichael@users.noreply.github.com
+Wed Jan 24 08:53 "Graded" # gitlab@taylor.bz
+Thu Jan 25 07:52 "JavaFX-Application" # woodm@msoe.edu
+Thu Jan 25 07:53 "JavaFX-Application" # 146870432+woodrmichael@users.noreply.github.com
+Thu Jan 25 09:08 "JavaFX-Window" # woodm@msoe.edu
+Thu Jan 25 09:27 "Jar-file" # woodm@msoe.edu
+Thu Jan 25 09:34 "Jar-file" # 146870432+woodrmichael@users.noreply.github.com
+Mon Jan 29 08:56 "Command-line-arguments" # woodm@msoe.edu
+Mon Jan 29 08:57 "Command-line-arguments" # woodm@msoe.edu
+Mon Jan 29 08:58 "Command-line-arguments" # 146870432+woodrmichael@users.noreply.github.com
+Tue Jan 30 21:21 "Lab-Completed" # woodm@msoe.edu
+Tue Jan 30 21:23 "Lab-Completed" # 146870432+woodrmichael@users.noreply.github.com
+Tue Jan 30 21:24 "Lab-Completed" # woodm@msoe.edu
+Tue Jan 30 21:26 "Lab-Completed" # woodm@msoe.edu
+Tue Jan 30 21:27 "Lab-Completed" # woodm@msoe.edu
+Tue Jan 30 21:31 "Lab-Completed" # woodm@msoe.edu
+Tue Jan 30 21:33 "Lab-Completed" # woodm@msoe.edu
+Wed Jan 31 04:23 "Graded" # gitlab@taylor.bz
+Wed Jan 31 05:00 "Graded" # gitlab@taylor.bz
+Wed Jan 31 23:47 "FXML-shell" # woodm@msoe.edu
+Thu Feb 1 09:04 "Display-Image" # woodm@msoe.edu
+Thu Feb 1 09:29 "Input-Images" # woodm@msoe.edu
+Thu Feb 1 09:30 "Input-Images" # 146870432+woodrmichael@users.noreply.github.com
+Thu Feb 1 09:39 "Input-Images" # 146870432+woodrmichael@users.noreply.github.com
+Thu Feb 1 09:45 "Input-Images" # 146870432+woodrmichael@users.noreply.github.com
+Thu Feb 1 23:23 "Lab-Completed" # woodm@msoe.edu
+Thu Feb 1 23:24 "Lab-Completed" # 146870432+woodrmichael@users.noreply.github.com
+Thu Feb 1 23:24 "Lab-Completed" # 146870432+woodrmichael@users.noreply.github.com
+Thu Feb 1 23:24 "Lab-Completed" # woodm@msoe.edu
+Thu Feb 1 23:25 "Lab-Completed" # woodm@msoe.edu
+Thu Feb 1 23:34 "Lab-Completed" # woodm@msoe.edu
+Sun Feb 4 17:39 "Lab-Completed" # woodm@msoe.edu
+Wed Feb 7 06:48 "Graded" # gitlab@taylor.bz
+Thu Feb 8 08:37 "Feedback-and-Deprecation" # woodm@msoe.edu
+Thu Feb 8 08:45 "Functional-Interface" # woodm@msoe.edu
+Thu Feb 8 11:56 "Apply-Transformation" # woodm@msoe.edu
+Thu Feb 8 12:35 "Apply-Transformation" # woodm@msoe.edu
+Thu Feb 8 14:14 "Read-Write-.msoe" # woodm@msoe.edu
+Thu Feb 8 15:02 "Lab-Completed" # woodm@msoe.edu
+Thu Feb 8 15:02 "Lab-Completed" # 146870432+woodrmichael@users.noreply.github.com
+Thu Feb 8 23:47 "Lab-Completed" # woodm@msoe.edu
+~~~~
+
+<!-- Markdeep: --><script src="https://csse.msoe.us/markdeep.js?graded"></script>
