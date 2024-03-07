@@ -2,10 +2,6 @@
 
 ## Use woodm.jar to run program
 
-Each week you will be required to complete multiple commits that
-build towards a complete lab solution. Note the due dates associated
-with each commit.
-
 ## [Link to Lab 1 assignment](https://csse.msoe.us/csc1120/lab1)
 
 * [x] Commit 1 "Rename package"
