@@ -26,8 +26,6 @@ with each commit.
 * [x] Commit 5 "Lab completed"
     - Implement the remaining requirements for the lab assignment.
 
-Remove the dashes on this line when lab 1 is ready to be graded (and commit and push): DONE1
-
 ## [Link to Lab 2 assignment](https://csse.msoe.us/csc1120/lab2)
 
 * [x] Commit 1 "JavaFX Application"
@@ -47,8 +45,6 @@ Remove the dashes on this line when lab 1 is ready to be graded (and commit and 
     - Finish all assignment requirements.
     - Update the `.jar` file by rebuilding it and copying it to the project folder.
 
-Remove the dashes on this line when lab 2 is ready to be graded (and commit and push): DONE2
-
 ## [Link to Lab 3 assignment](https://csse.msoe.us/csc1120/lab3)
 
 * [x] Commit 1 "FXML shell"
@@ -65,8 +61,6 @@ Remove the dashes on this line when lab 2 is ready to be graded (and commit and 
     - Update your code based on feedback from your instructor (if available)
     - Finish all assignment requirements.
 
-Remove the dashes on this line when lab 3 is ready to be graded (and commit and push): DONE3
-
 ## [Link to Lab 5 assignment](https://csse.msoe.us/csc1120/lab5)
 
 * [x] Commit 1 "Feedback and Deprecation"
@@ -82,5 +76,3 @@ Remove the dashes on this line when lab 3 is ready to be graded (and commit and 
 * [x] Commit 5 "Lab completed"
     - Add buttons and functionality for Max, Min, and Random.
     - Finish all assignment requirements.
-
-Remove the dashes on this line when lab 5 is ready to be graded (and commit and push): DONE5
