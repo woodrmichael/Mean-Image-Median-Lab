@@ -1,4 +1,6 @@
-# CSC1120 Labs 1, 2, and 3
+# CSC1120 Labs 1, 2, 3 and 5
+
+## Use woodm.jar to run program
 
 Each week you will be required to complete multiple commits that
 build towards a complete lab solution. Note the due dates associated
